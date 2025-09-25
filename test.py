@@ -83,6 +83,18 @@ class InterfaceInstantiationTestCase(TestCase):
         self.assertRaises(Exception, self.Level_3_Interface_dot)
         self.assertRaises(Exception, self.Level_3_Interface_pass)
     
+    def test_raised_exception_is_TypeError(self):
+        self.assertRaises(TypeError, InterfaceBase)
+        
+        self.assertRaises(TypeError, self.Level_1_Interface_dot)
+        self.assertRaises(TypeError, self.Level_1_Interface_pass)
+        
+        self.assertRaises(TypeError, self.Level_2_Interface_dot)
+        self.assertRaises(TypeError, self.Level_2_Interface_pass)
+        
+        self.assertRaises(TypeError, self.Level_3_Interface_dot)
+        self.assertRaises(TypeError, self.Level_3_Interface_pass)
+    
     def test_check_exception_message_InterfaceBase(self):
         expected_message = "Cannot instantiate interface class 'InterfaceBase'"
         with self.assertRaises(Exception) as context:
