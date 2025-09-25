@@ -30,36 +30,35 @@ from interface import interface, concrete, InterfaceBase
 class InterfaceInstantiationTestCase(TestCase):
     
     def setUp(self):
-        return super().setUp()
+        @interface
+        class Level_1_Interface(InterfaceBase): ...
+        @interface
+        class Level_2_Interface(Level_1_Interface): ...
+        @interface
+        class Level_3_Interface(Level_2_Interface): ...
+        
+        self.Level_1_Interface = Level_1_Interface
+        self.Level_2_Interface = Level_2_Interface
+        self.Level_3_Interface = Level_3_Interface
+    
     
     def tearDown(self):
-        return super().tearDown()
+        del self.Level_1_Interface
+        del self.Level_2_Interface
+        del self.Level_3_Interface
+    
     
     def test_no_instance_from_InterfaceBase(self):
         self.assertRaises(Exception, InterfaceBase)
     
     def test_no_instance_from_interface_level_1(self):
-        @interface
-        class Level_1_interface(InterfaceBase): ...
-        self.assertRaises(Exception, Level_1_interface)
+        self.assertRaises(Exception, self.Level_1_Interface)
     
     def test_no_instance_from_interface_level_2(self):
-        @interface
-        class Level_1_interface(InterfaceBase): ...
-        @interface
-        class Level_2_interface(Level_1_interface): ...
-        
-        self.assertRaises(Exception, Level_2_interface)
+        self.assertRaises(Exception, self.Level_2_Interface)
     
     def test_no_instance_from_interface_level_3(self):
-        @interface
-        class Level_1_interface(InterfaceBase): ...
-        @interface
-        class Level_2_interface(Level_1_interface): ...
-        @interface
-        class Level_3_interface(Level_2_interface): ...
-        
-        self.assertRaises(Exception, Level_3_interface)
+        self.assertRaises(Exception, self.Level_3_Interface)
 
 
 if __name__ == "__main__":
