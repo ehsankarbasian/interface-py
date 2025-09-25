@@ -64,18 +64,37 @@ class InterfaceMeta(type):
                     continue
 
                 if isinstance(value, property):
+                    cls_name = cls.__name__
+
+                    # 1️⃣ Check if the property object itself has implementation (edge case)
+                    #    یعنی اگر هیچ فاز get/set/delete تعریف نشده ولی property به هر نحوی
+                    #    "پیاده‌سازی" شده باشه (معمولاً نادر ولی امنیتی)
+                    if not (value.fget or value.fset or value.fdel):
+                        # اینجا property تعریف شده ولی هیچ متدی attach نشده
+                        # اگر می‌خواهی به عنوان تخلف در نظر بگیری
+                        raise TypeError(
+                            f"Property '{attr}' in interface '{cls_name}' must define at least a getter/setter/deleter with empty body."
+                        )
+
+                    # 2️⃣ Getter check
                     if value.fget and not Helper.is_empty_function(value.fget):
-                        cls_name = cls.__name__
-                        del cls
                         raise TypeError(
                             f"Property getter '{attr}' in interface '{cls_name}' must have empty body."
                         )
+
+                    # 3️⃣ Setter check
                     if value.fset and not Helper.is_empty_function(value.fset):
-                        cls_name = cls.__name__
-                        del cls
                         raise TypeError(
                             f"Property setter '{attr}' in interface '{cls_name}' must have empty body."
                         )
+
+                    # 4️⃣ Deleter check
+                    if value.fdel and not Helper.is_empty_function(value.fdel):
+                        raise TypeError(
+                            f"Property deleter '{attr}' in interface '{cls_name}' must have empty body."
+                        )
+
+                    # اگر همهٔ بخش‌های بالا پاس شد
                     cls._interface_contracts_.add(attr)
                     continue
                 

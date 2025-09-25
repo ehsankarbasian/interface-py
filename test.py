@@ -135,5 +135,66 @@ class InterfaceInstantiationTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
+class InterfaceHasNoConcreteLogicTestCase(TestCase):
+    
+    def test_no_concrete_method(self):
+        expected_message = "Method 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                def foo(self):
+                    return "bar"
+            
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_classmethod(self):
+        expected_message = "Class method 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @classmethod
+                def foo(cls):
+                    return "bar"
+            
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_staticmethod(self):
+        expected_message = "Static method 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @staticmethod
+                def foo():
+                    return "bar"
+            
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_property(self):
+        expected_message = "Property 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @property
+                def foo(self):
+                    return "bar"
+            
+        self.assertEqual(str(context.exception), expected_message)
+
+
 if __name__ == "__main__":
     unittest.main()
