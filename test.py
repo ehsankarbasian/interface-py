@@ -194,6 +194,63 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                     return "bar"
             
         self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_property_getter(self):
+        expected_message = "Property getter 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @property
+                def foo(self):
+                    pass
+                
+                @foo.getter
+                def foo(self):
+                    return "bar"
+            
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_property_setter(self):
+        expected_message = "Property setter 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @property
+                def foo(self):
+                    pass
+                
+                @foo.setter
+                def foo(self, value):
+                    print(f'set: {value}')
+            
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_no_concrete_property_deleter(self):
+        expected_message = "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+        
+        with self.assertRaises(TypeError) as context:
+            
+            @interface
+            class MyInterface(InterfaceBase):
+                
+                @property
+                def foo(self):
+                    pass
+                
+                @foo.deleter
+                def foo(self, value):
+                    print(f'delete: {value}')
+            
+        self.assertEqual(str(context.exception), expected_message)
 
 
 if __name__ == "__main__":
