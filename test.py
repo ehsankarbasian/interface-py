@@ -20,6 +20,7 @@ from interface import interface, concrete, InterfaceBase
 #     def shoot(self): print("shooting")
 
 # Raises error:
+# InterfaceBase()
 # Human()
 # MilitaryHuman()
 
@@ -30,6 +31,7 @@ from interface import interface, concrete, InterfaceBase
 class InterfaceInstantiationTestCase(TestCase):
     
     def setUp(self):
+        
         @interface
         class Level_1_Interface_dot(InterfaceBase): ...
         @interface
@@ -54,6 +56,7 @@ class InterfaceInstantiationTestCase(TestCase):
     
     
     def tearDown(self):
+        
         del self.Level_1_Interface_dot
         del self.Level_2_Interface_dot
         del self.Level_3_Interface_dot
@@ -61,6 +64,8 @@ class InterfaceInstantiationTestCase(TestCase):
         del self.Level_1_Interface_pass
         del self.Level_2_Interface_pass
         del self.Level_3_Interface_pass
+        
+        return super().tearDown()
     
     
     def test_no_instance_from_InterfaceBase(self):
@@ -77,6 +82,45 @@ class InterfaceInstantiationTestCase(TestCase):
     def test_no_instance_from_interface_level_3(self):
         self.assertRaises(Exception, self.Level_3_Interface_dot)
         self.assertRaises(Exception, self.Level_3_Interface_pass)
+    
+    def test_check_exception_message_InterfaceBase(self):
+        expected_message = "Cannot instantiate interface class 'InterfaceBase'"
+        with self.assertRaises(Exception) as context:
+            InterfaceBase()
+        self.assertEqual(str(context.exception), expected_message)
+    
+    def test_check_exception_message_level_1(self):
+        expected_message = "Cannot instantiate interface class 'Level_1_Interface_dot'"
+        with self.assertRaises(Exception) as context:
+            self.Level_1_Interface_dot()
+        self.assertEqual(str(context.exception), expected_message)
+        
+        expected_message = "Cannot instantiate interface class 'Level_1_Interface_pass'"
+        with self.assertRaises(Exception) as context:
+            self.Level_1_Interface_pass()
+        self.assertEqual(str(context.exception), expected_message)
+    
+    def test_check_exception_message_level_2(self):
+        expected_message = "Cannot instantiate interface class 'Level_2_Interface_dot'"
+        with self.assertRaises(Exception) as context:
+            self.Level_2_Interface_dot()
+        self.assertEqual(str(context.exception), expected_message)
+        
+        expected_message = "Cannot instantiate interface class 'Level_2_Interface_pass'"
+        with self.assertRaises(Exception) as context:
+            self.Level_2_Interface_pass()
+        self.assertEqual(str(context.exception), expected_message)
+    
+    def test_check_exception_message_level_3(self):
+        expected_message = "Cannot instantiate interface class 'Level_3_Interface_dot'"
+        with self.assertRaises(Exception) as context:
+            self.Level_3_Interface_dot()
+        self.assertEqual(str(context.exception), expected_message)
+        
+        expected_message = "Cannot instantiate interface class 'Level_3_Interface_pass'"
+        with self.assertRaises(Exception) as context:
+            self.Level_3_Interface_pass()
+        self.assertEqual(str(context.exception), expected_message)
 
 
 if __name__ == "__main__":
