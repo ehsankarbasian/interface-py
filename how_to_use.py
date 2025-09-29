@@ -9,15 +9,17 @@ class Human(InterfaceBase):
 
 @interface
 class MilitaryHuman(Human):
-    # t: int
-    # t = ...
-    # t: int = ...
+    # x: int
+    # x = ...
+    x: int = ...
     
     def shoot(self): ...
 
 
 @concrete
 class Commander(MilitaryHuman):
+    x = 2
+    
     def talk(self): print("talking")
     def walk(self): print("walking")
     def shoot(self): print("shooting")
@@ -28,4 +30,5 @@ class Commander(MilitaryHuman):
 # MilitaryHuman()
 
 c = Commander()
-# c.talk()
+c.talk()
+print(c.x)
