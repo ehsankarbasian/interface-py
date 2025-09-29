@@ -87,17 +87,40 @@ class Helper:
 
     @staticmethod
     def is_empty_function(func) -> bool:
-        node = Helper.get_function_ast_node(func)
-        if node is not None:
-            return Helper.is_ast_body_empty(node)
-        
-        code = getattr(func, "__code__", None)
-        if code is None:
+        """
+        Returns True if the function body is logically empty:
+        - Only 'pass'
+        - Only a docstring
+        Anything else (even a single print) => False (means NOT empty)
+        """
+        try:
+            source = inspect.getsource(func)
+            source = textwrap.dedent(source)
+            tree = ast.parse(source)
+
+            func_node = next(
+                (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)),
+                None
+            )
+            if not func_node:
+                return False
+
+            body = func_node.body
+            if not body:
+                return True
+
+            if len(body) == 1:
+                stmt = body[0]
+                if isinstance(stmt, ast.Pass):
+                    return True
+                if (
+                    isinstance(stmt, ast.Expr)
+                    and isinstance(stmt.value, ast.Constant)
+                    and isinstance(stmt.value.value, str)
+                ):
+                    return True
+
             return False
-        
-        co_names = getattr(code, "co_names", ())
-        co_consts = getattr(code, "co_consts", ())
-        if not co_names and (co_consts == (None,) or co_consts == (None,)):
-            return True
-        
-        return False
+
+        except (OSError, TypeError, IndentationError, SyntaxError):
+            return False

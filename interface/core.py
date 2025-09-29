@@ -65,39 +65,38 @@ class InterfaceMeta(type):
 
                 if isinstance(value, property):
                     cls_name = cls.__name__
+                    errors: list[str] = []
 
-                    # 1️⃣ Check if the property object itself has implementation (edge case)
-                    #    یعنی اگر هیچ فاز get/set/delete تعریف نشده ولی property به هر نحوی
-                    #    "پیاده‌سازی" شده باشه (معمولاً نادر ولی امنیتی)
-                    if not (value.fget or value.fset or value.fdel):
-                        # اینجا property تعریف شده ولی هیچ متدی attach نشده
-                        # اگر می‌خواهی به عنوان تخلف در نظر بگیری
-                        raise TypeError(
-                            f"Property '{attr}' in interface '{cls_name}' must define at least a getter/setter/deleter with empty body."
+                    if not any([value.fget, value.fset, value.fdel]):
+                        errors.append(
+                            f"Property '{attr}' in interface '{cls_name}' must define at least "
+                            "a getter, setter or deleter (even if empty)."
                         )
 
-                    # 2️⃣ Getter check
-                    if value.fget and not Helper.is_empty_function(value.fget):
-                        raise TypeError(
-                            f"Property getter '{attr}' in interface '{cls_name}' must have empty body."
-                        )
+                    if value.fget is not None:
+                        if not Helper.is_empty_function(value.fget):
+                            errors.append(
+                                f"Property getter '{attr}' in interface '{cls_name}' must have empty body."
+                            )
 
-                    # 3️⃣ Setter check
-                    if value.fset and not Helper.is_empty_function(value.fset):
-                        raise TypeError(
-                            f"Property setter '{attr}' in interface '{cls_name}' must have empty body."
-                        )
+                    if value.fset is not None:
+                        if not Helper.is_empty_function(value.fset):
+                            errors.append(
+                                f"Property setter '{attr}' in interface '{cls_name}' must have empty body."
+                            )
 
-                    # 4️⃣ Deleter check
-                    if value.fdel and not Helper.is_empty_function(value.fdel):
-                        raise TypeError(
-                            f"Property deleter '{attr}' in interface '{cls_name}' must have empty body."
-                        )
+                    if value.fdel is not None:
+                        if not Helper.is_empty_function(value.fdel):
+                            errors.append(
+                                f"Property deleter '{attr}' in interface '{cls_name}' must have empty body."
+                            )
 
-                    # اگر همهٔ بخش‌های بالا پاس شد
+                    if errors:
+                        raise TypeError("\n".join(errors))
+
                     cls._interface_contracts_.add(attr)
                     continue
-                
+                                
                 cls_name = cls.__name__
                 del cls
                 raise TypeError(

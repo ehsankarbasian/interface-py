@@ -182,7 +182,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property(self):
-        expected_message = "Property 'foo' in interface 'MyInterface' must have empty body."
+        expected_message = "Property getter 'foo' in interface 'MyInterface' must have empty body."
         
         with self.assertRaises(TypeError) as context:
             
