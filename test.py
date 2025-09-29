@@ -420,5 +420,120 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_messages)
 
 
+class InterfaceCanDefineEmptyContractTestCase(TestCase):
+    
+    def test_empty_pass_method(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            def foo(self):
+                pass
+    
+    
+    def test_empty_pass_classmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @classmethod
+            def foo(cls):
+                pass
+    
+    
+    def test_empty_pass_staticmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @staticmethod
+            def foo():
+                pass
+    
+    
+    def test_empty_pass_property(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @property
+            def foo(self):
+                pass
+    
+    
+    def test_empty_three_dots_method(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            def foo(self): ...
+    
+
+    def test_empty_three_dots_classmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @classmethod
+            def foo(cls): ...
+    
+
+    def test_empty_three_dots_staticmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @staticmethod
+            def foo(): ...
+    
+
+    def test_empty_three_dots_property(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @property
+            def foo(self): ...
+    
+
+    def test_empty_docstring_method(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            def foo(self):
+                """ Explanation """
+
+
+    def test_empty_docstring_classmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @classmethod
+            def foo(cls):
+                """ Explanation """
+
+
+    def test_empty_docstring_staticmethod(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @staticmethod
+            def foo():
+                """ Explanation """
+
+
+    def test_empty_docstring_property(self):
+        
+        @interface
+        class MyInterface(InterfaceBase):
+            
+            @property
+            def foo(self):
+                """ Explanation """
+
+
 if __name__ == "__main__":
     unittest.main()
