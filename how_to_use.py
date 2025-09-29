@@ -9,6 +9,10 @@ class Human(InterfaceBase):
 
 @interface
 class MilitaryHuman(Human):
+    # t: int
+    # t = ...
+    # t: int = ...
+    
     def shoot(self): ...
 
 
@@ -24,4 +28,4 @@ class Commander(MilitaryHuman):
 # MilitaryHuman()
 
 c = Commander()
-c.talk()
+# c.talk()
