@@ -3,6 +3,8 @@ import ast
 import inspect
 import textwrap
 
+from types import FunctionType
+
 
 class Helper:
     
@@ -58,69 +60,57 @@ class Helper:
 
 
     @staticmethod
-    def get_function_ast_node(func):
-        node = Helper.find_func_node_from_file(func)
-        if node is not None:
-            return node
-        
-        return Helper.find_func_node_from_snippet(func)
+    def get_function_ast_node(func: FunctionType):
+        """Return AST node of a function"""
+        try:
+            src = inspect.getsource(func)
+        except (OSError, TypeError):
+            return None
+        src = textwrap.dedent(src)
+        try:
+            mod = ast.parse(src)
+        except SyntaxError:
+            return None
+        for node in ast.walk(mod):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == func.__name__:
+                return node
+        return None
 
 
     @staticmethod
     def is_ast_body_empty(node: ast.AST) -> bool:
+        """Check if the AST body is empty (pass, ellipsis, docstring only)"""
         if not node or not hasattr(node, "body"):
             return False
-        
         body = node.body
         if len(body) == 0:
             return True
-        
-        if len(body) == 1:
-            stmt = body[0]
+        for stmt in body:
             if isinstance(stmt, ast.Pass):
-                return True
+                continue
             if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant) and stmt.value.value is Ellipsis:
-                return True
-            
-        return False
+                continue
+            if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant) and isinstance(stmt.value.value, str):
+                continue
+            return False
+        return True
 
 
     @staticmethod
-    def is_empty_function(func) -> bool:
-        """
-        Returns True if the function body is logically empty:
-        - Only 'pass'
-        - Only a docstring
-        Anything else (even a single print) => False (means NOT empty)
-        """
-        try:
-            source = inspect.getsource(func)
-            source = textwrap.dedent(source)
-            tree = ast.parse(source)
-
-            func_node = next(
-                (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)),
-                None
-            )
-            if not func_node:
-                return False
-
-            body = func_node.body
-            if not body:
-                return True
-
-            if len(body) == 1:
-                stmt = body[0]
-                if isinstance(stmt, ast.Pass):
-                    return True
-                if (
-                    isinstance(stmt, ast.Expr)
-                    and isinstance(stmt.value, ast.Constant)
-                    and isinstance(stmt.value.value, str)
-                ):
-                    return True
-
+    def is_empty_function(func: FunctionType) -> bool:
+        if func is None:
             return False
-
-        except (OSError, TypeError, IndentationError, SyntaxError):
+        
+        node = Helper.get_function_ast_node(func)
+        if node is not None:
+            return Helper.is_ast_body_empty(node)
+        
+        code = getattr(func, "__code__", None)
+        if code is None:
             return False
+        co_names = getattr(code, "co_names", ())
+        co_consts = getattr(code, "co_consts", ())
+        if not co_names and (co_consts == (None,) or co_consts == (None,)):
+            return True
+        
+        return False
