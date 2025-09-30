@@ -1,3 +1,4 @@
+import math
 import time
 import itertools
 from memory_profiler import memory_usage
@@ -11,9 +12,11 @@ sys.path.append(path)
 from interface import interface, concrete, InterfaceBase
 from abc import ABC, abstractmethod
 
+# interactive mode on so figures can be shown non-blocking
+plt.ion()
 
-def bench_time_and_memory(label, fn, n=1, plot=False):
-    """Run fn() n times measuring time and memory peak"""
+
+def run_and_collect(label, fn, n=1, interval=0.01):
     start = time.perf_counter()
     for _ in range(n):
         fn()
@@ -23,20 +26,73 @@ def bench_time_and_memory(label, fn, n=1, plot=False):
         for _ in range(n):
             fn()
 
-    mem_samples = memory_usage(wrapper, max_iterations=1, interval=0.01, retval=False)
-    mem_peak_mib = (max(mem_samples) - min(mem_samples))
+    mem_samples = memory_usage(wrapper, interval=interval, timeout=None)
+    peak = max(mem_samples) - min(mem_samples) if mem_samples else 0.0
+    
+    print(f"{label:50s}: {dur:.4f} sec for {n} runs, +{peak:.4f} MiB peak memory")
 
-    print(f"{label:50s}: {dur:.4f} sec for {n} runs, +{mem_peak_mib:.4f} MiB peak memory")
+    return {
+        "label": label,
+        "dur": dur,
+        "mem": mem_samples,
+        "peak": peak,
+        "n": n,
+        "interval": interval,
+    }
 
-    if plot:
-        plt.figure(figsize=(8, 4))
-        plt.plot(mem_samples, label=label)
-        plt.xlabel("Sample index (time)")
-        plt.ylabel("Memory (MiB)")
-        plt.title(f"Memory usage: {label}")
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
+def plot_group(results, group_title, cols=2, figsize_per_subplot=(6,3)):
+    """Plot a list of result dicts (from run_and_collect) into one figure with subplots."""
+    import math
+    import matplotlib.pyplot as plt
+
+    k = len(results)
+    cols = max(1, cols)
+    rows = math.ceil(k / cols)
+    fig_w = figsize_per_subplot[0] * cols
+    fig_h = figsize_per_subplot[1] * rows
+    fig, axes = plt.subplots(rows, cols, figsize=(fig_w, fig_h), constrained_layout=True)
+    
+    # flatten axes list
+    if isinstance(axes, (list, tuple)):
+        axes_list = list(axes)
+    else:
+        axes_list = list(axes.flat)
+    
+    for i, res in enumerate(results):
+        ax = axes_list[i]
+        mem = res["mem"]
+        if not mem:
+            ax.text(0.5, 0.5, "no samples", ha="center", va="center")
+        else:
+            x = [idx * res["interval"] for idx in range(len(mem))]
+            ax.plot(x, mem, lw=1)
+        
+        ax.set_title(f"{res['label']}\n{res['dur']:.3f}s, +{res['peak']:.3f} MiB")
+        ax.set_xlabel("time (s)")
+        ax.set_ylabel("memory (MiB)")
+        
+        for spine in ax.spines.values():
+            spine.set_visible(True)
+            spine.set_linewidth(1.5)
+            spine.set_edgecolor("black")
+
+    # hide unused axes
+    for j in range(k, rows * cols):
+        axes_list[j].axis("off")
+    
+    fig.suptitle(group_title)
+
+    # ensure nothing overlaps, fully contained in own subplot
+    plt.tight_layout()
+    
+    try:
+        fig.canvas.manager.set_window_title(group_title)
+    except Exception:
+        pass
+    
+    plt.show(block=False)
+    plt.pause(0.1)
+    return fig
 
 
 @interface
@@ -193,41 +249,39 @@ def make_big_abc_impl(abc_cls):
 if __name__ == "__main__":
     # small quick baseline
     N = 10000
-    bench_time_and_memory("Interface definition (small)", make_interface_class, n=N, plot=True)
-    bench_time_and_memory("Concrete definition (small)", make_concrete_class, n=N, plot=True)
-    bench_time_and_memory("ABC definition (small)", make_abc_class, n=N, plot=True)
-    bench_time_and_memory("ABC implementation (small)", make_abc_impl, n=N, plot=True)
+    small_results = []
+    small_results.append(run_and_collect("Interface definition (small)", make_interface_class, n=N))
+    small_results.append(run_and_collect("Concrete definition (small)", make_concrete_class, n=N))
+    small_results.append(run_and_collect("ABC definition (small)", make_abc_class, n=N))
+    small_results.append(run_and_collect("ABC implementation (small)", make_abc_impl, n=N))
+
+    plot_group(small_results, f"Quick baseline: {N} iterations - memory timelines", cols=2)
 
     print("\n\n------ Large-class benchmarks (time + memory) ------\n")
 
     sizes = [
-        (50, 50, 200),     # small
-        (200, 200, 200),   # medium
-        (800, 800, 200),   # large
+        (50, 50, 200, 'Small'),
+        (200, 200, 200, 'Medium'),
+        (800, 800, 200, 'Large'),
     ]
 
-    for num_fields, num_methods, iterations in sizes:
-        label_interface = f"Interface {num_fields} fields / {num_methods} methods"
-        label_abstract = f"ABC       {num_methods} methods"
-
-        bench_time_and_memory(label_interface,
-                              lambda: make_big_interface(num_fields, num_methods, True),
-                              n=iterations,
-                              plot=True)
-        bench_time_and_memory(label_interface + " -> concrete",
-                              lambda: make_big_concrete_from_interface(
-                                  make_big_interface(num_fields, num_methods, True)),
-                              n=iterations,
-                              plot=True)
-
-        bench_time_and_memory(label_abstract,
-                              lambda: make_big_abc(0, num_methods, True),
-                              n=iterations,
-                              plot=True)
-        bench_time_and_memory(label_abstract + " -> implementation",
-                              lambda: make_big_abc_impl(make_big_abc(0, num_methods, True)),
-                              n=iterations,
-                              plot=True)
+    for num_fields, num_methods, iterations, size_name in sizes:
+        group_results = []
+        group_results.append(run_and_collect(f"Interface {num_fields} fields / {num_methods} methods", 
+                                            lambda: make_big_interface(num_fields, num_methods, True),
+                                            n=iterations))
+        group_results.append(run_and_collect(f"Interface {num_fields}f/{num_methods}m -> concrete",
+                                            lambda: make_big_concrete_from_interface(make_big_interface(num_fields, num_methods, True)),
+                                            n=iterations))
+        group_results.append(run_and_collect(f"ABC {num_methods} methods",
+                                            lambda: make_big_abc(0, num_methods, True),
+                                            n=iterations))
+        group_results.append(run_and_collect(f"ABC {num_methods} -> implementation",
+                                            lambda: make_big_abc_impl(make_big_abc(0, num_methods, True)),
+                                            n=iterations))
         print()
 
-    print("Done.")
+        plot_group(group_results, f"{size_name} class suite: {num_fields} fields & {num_methods} methods - {iterations} iterations", cols=2)
+
+    print("\nDone. All figures are opened (non-blocking).")
+    input("Press Enter to finish and close all plots...")
