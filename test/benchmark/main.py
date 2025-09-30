@@ -1,7 +1,8 @@
 import time
-
 import pathlib
 import sys
+from memory_profiler import memory_usage
+
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
@@ -47,13 +48,22 @@ class ConcreteFooABC(AbstractFoo):
     def y(self): return "y"
 
 
-# Benchmark Printer
+# Benchmark Helpers
 def benchmark(label, fn, n=10000):
+    # time
     start = time.perf_counter()
     for _ in range(n):
         fn()
     dur = time.perf_counter() - start
-    print(f"{label}: {dur:.4f} sec for {n} runs")
+
+    # memory
+    def wrapper():
+        for _ in range(n):
+            fn()
+    mem_usage = memory_usage(wrapper, max_iterations=1)
+    mem_peak = max(mem_usage) - min(mem_usage)
+
+    print(f"{label}: {dur:.4f} sec for {n} runs, +{mem_peak:.4f} MiB peak memory")
 
 
 def make_interface_class():
@@ -84,7 +94,7 @@ def make_abc_impl():
 # Run benchmark
 if __name__ == "__main__":
     N = 10000
-    benchmark("Interface definition", make_interface_class, n=N)
-    benchmark("Concrete definition", make_concrete_class, n=N)
-    benchmark("ABC definition", make_abc_class, n=N)
-    benchmark("ABC impl", make_abc_impl, n=N)
+    benchmark("Interface definition ", make_interface_class, n=N)
+    benchmark("Concrete definition  ", make_concrete_class, n=N)
+    benchmark("ABC definition       ", make_abc_class, n=N)
+    benchmark("ABC implementation   ", make_abc_impl, n=N)
