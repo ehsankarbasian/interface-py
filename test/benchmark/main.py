@@ -1,6 +1,7 @@
 import time
 import itertools
 from memory_profiler import memory_usage
+import matplotlib.pyplot as plt
 
 import pathlib
 import sys
@@ -11,7 +12,7 @@ from interface import interface, concrete, InterfaceBase
 from abc import ABC, abstractmethod
 
 
-def bench_time_and_memory(label, fn, n=1):
+def bench_time_and_memory(label, fn, n=1, plot=False):
     """Run fn() n times measuring time and memory peak"""
     start = time.perf_counter()
     for _ in range(n):
@@ -22,9 +23,20 @@ def bench_time_and_memory(label, fn, n=1):
         for _ in range(n):
             fn()
 
-    mem_samples = memory_usage(wrapper, max_iterations=1)
+    mem_samples = memory_usage(wrapper, max_iterations=1, interval=0.01, retval=False)
     mem_peak_mib = (max(mem_samples) - min(mem_samples))
-    print(f"{label:40s}: {dur:.4f} sec for {n} runs, +{mem_peak_mib:.4f} MiB peak memory")
+
+    print(f"{label:50s}: {dur:.4f} sec for {n} runs, +{mem_peak_mib:.4f} MiB peak memory")
+
+    if plot:
+        plt.figure(figsize=(8, 4))
+        plt.plot(mem_samples, label=label)
+        plt.xlabel("Sample index (time)")
+        plt.ylabel("Memory (MiB)")
+        plt.title(f"Memory usage: {label}")
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
 
 @interface
@@ -91,9 +103,6 @@ def make_abc_impl():
 _unique_counter = itertools.count(0)
 
 def make_big_interface(num_fields=100, num_methods=100, with_annotations=True):
-    """
-    Returns the created interface
-    """
     index = next(_unique_counter)
     cls_name = f"BigInterface_{num_fields}f_{num_methods}m_{index}"
 
@@ -111,11 +120,7 @@ def make_big_interface(num_fields=100, num_methods=100, with_annotations=True):
         lines.append(f"    def method_{j}(self): ...")
 
     src = "\n".join(lines)
-    # global namespace for exec
-    g = {
-        "InterfaceBase": InterfaceBase,
-    }
-    # exec the class definition
+    g = {"InterfaceBase": InterfaceBase}
     local_vars = {}
     exec(src, g, local_vars)
     cls = local_vars[cls_name]
@@ -133,10 +138,7 @@ def make_big_abc(num_fields=0, num_methods=100, with_annotations=True):
         lines.append(f"    def method_{j}(self): ...")
 
     src = "\n".join(lines)
-    g = {
-        "ABC": ABC,
-        "abstractmethod": abstractmethod,
-    }
+    g = {"ABC": ABC, "abstractmethod": abstractmethod}
     local_vars = {}
     exec(src, g, local_vars)
     cls = local_vars[cls_name]
@@ -191,41 +193,41 @@ def make_big_abc_impl(abc_cls):
 if __name__ == "__main__":
     # small quick baseline
     N = 10000
-    bench_time_and_memory("Interface definition (small)     ", make_interface_class, n=N)
-    bench_time_and_memory("Concrete definition (small)      ", make_concrete_class, n=N)
-    bench_time_and_memory("ABC definition (small)           ", make_abc_class, n=N)
-    bench_time_and_memory("ABC implementation (small)       ", make_abc_impl, n=N)
+    bench_time_and_memory("Interface definition (small)", make_interface_class, n=N, plot=True)
+    bench_time_and_memory("Concrete definition (small)", make_concrete_class, n=N, plot=True)
+    bench_time_and_memory("ABC definition (small)", make_abc_class, n=N, plot=True)
+    bench_time_and_memory("ABC implementation (small)", make_abc_impl, n=N, plot=True)
 
     print("\n\n------ Large-class benchmarks (time + memory) ------\n")
 
-    # sizes: list of (fields, methods, iterations)
     sizes = [
-        (50, 50, 200),    # lite
-        (200, 200, 200),  # medium
-        (800, 800, 200),   # heavy
+        (50, 50, 200),     # small
+        (200, 200, 200),   # medium
+        (800, 800, 200),   # large
     ]
 
     for num_fields, num_methods, iterations in sizes:
         label_interface = f"Interface {num_fields} fields / {num_methods} methods"
         label_abstract = f"ABC       {num_methods} methods"
 
-        bench_time_and_memory(label_interface.ljust(50),
-                              lambda: make_big_interface(num_fields,
-                                                         num_methods,
-                                                         with_annotations=True),
-                              n=iterations)
-        bench_time_and_memory((label_interface + " -> concrete").ljust(50),
-                              lambda: make_big_concrete_from_interface(make_big_interface(num_fields,
-                                                                                          num_methods,
-                                                                                          True)),
-                              n=iterations)
+        bench_time_and_memory(label_interface,
+                              lambda: make_big_interface(num_fields, num_methods, True),
+                              n=iterations,
+                              plot=True)
+        bench_time_and_memory(label_interface + " -> concrete",
+                              lambda: make_big_concrete_from_interface(
+                                  make_big_interface(num_fields, num_methods, True)),
+                              n=iterations,
+                              plot=True)
 
-        bench_time_and_memory(label_abstract.ljust(50),
+        bench_time_and_memory(label_abstract,
                               lambda: make_big_abc(0, num_methods, True),
-                              n=iterations)
-        bench_time_and_memory((label_abstract + " -> implementation").ljust(50),
+                              n=iterations,
+                              plot=True)
+        bench_time_and_memory(label_abstract + " -> implementation",
                               lambda: make_big_abc_impl(make_big_abc(0, num_methods, True)),
-                              n=iterations)
+                              n=iterations,
+                              plot=True)
         print()
 
     print("Done.")
