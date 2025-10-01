@@ -1,4 +1,4 @@
-import math
+import gc
 import time
 import itertools
 from memory_profiler import memory_usage
@@ -16,6 +16,9 @@ from abc import ABC, abstractmethod
 plt.ion()
 
 
+import gc  # اضافه شده برای کنترل Garbage Collector
+
+
 def run_and_collect(label, fn, n=1, interval=0.01):
     start = time.perf_counter()
     for _ in range(n):
@@ -29,7 +32,7 @@ def run_and_collect(label, fn, n=1, interval=0.01):
     mem_samples = memory_usage(wrapper, interval=interval, timeout=None)
     peak = max(mem_samples) - min(mem_samples) if mem_samples else 0.0
     
-    print(f"{label:50s}: {dur:.4f} sec for {n} runs, +{peak:.4f} MiB peak memory")
+    print(f"{label:40s}: {dur:.4f} sec for {n} runs, +{peak:.4f} MiB peak memory")
 
     return {
         "label": label,
@@ -39,6 +42,22 @@ def run_and_collect(label, fn, n=1, interval=0.01):
         "n": n,
         "interval": interval,
     }
+
+
+def run_with_and_without_gc(label, fn, n=1, interval=0.01):
+    results = []
+
+    gc.enable()
+    res_gc_on = run_and_collect(label + " [GC ON]", fn, n=n, interval=interval)
+    results.append(res_gc_on)
+
+    gc.disable()
+    res_gc_off = run_and_collect(label + " [GC OFF]", fn, n=n, interval=interval)
+    results.append(res_gc_off)
+    gc.enable()
+    
+    return results
+
 
 def plot_group(results, group_title, cols=2, figsize_per_subplot=(6,3)):
     """Plot a list of result dicts (from run_and_collect) into one figure with subplots."""
@@ -250,10 +269,14 @@ if __name__ == "__main__":
     # small quick baseline
     N = 10000
     small_results = []
-    small_results.append(run_and_collect("Interface definition (small)", make_interface_class, n=N))
-    small_results.append(run_and_collect("Concrete definition (small)", make_concrete_class, n=N))
-    small_results.append(run_and_collect("ABC definition (small)", make_abc_class, n=N))
-    small_results.append(run_and_collect("ABC implementation (small)", make_abc_impl, n=N))
+    for r in run_with_and_without_gc("Interface definition (small)", make_interface_class, n=N):
+        small_results.append(r)
+    for r in run_with_and_without_gc("Concrete definition (small)", make_concrete_class, n=N):
+        small_results.append(r)
+    for r in run_with_and_without_gc("ABC definition (small)", make_abc_class, n=N):
+        small_results.append(r)
+    for r in run_with_and_without_gc("ABC implementation (small)", make_abc_impl, n=N):
+        small_results.append(r)
 
     plot_group(small_results, f"Quick baseline: {N} iterations - memory timelines", cols=2)
 
@@ -263,22 +286,29 @@ if __name__ == "__main__":
         (50, 50, 200, 'Small'),
         (200, 200, 200, 'Medium'),
         (800, 800, 200, 'Large'),
+        (4000, 4000, 200, 'Extra Large'),
     ]
 
     for num_fields, num_methods, iterations, size_name in sizes:
         group_results = []
-        group_results.append(run_and_collect(f"Interface {num_fields} fields / {num_methods} methods", 
+        
+        for r in run_with_and_without_gc(f"Interface {num_fields} fields / {num_methods} methods", 
                                             lambda: make_big_interface(num_fields, num_methods, True),
-                                            n=iterations))
-        group_results.append(run_and_collect(f"Interface {num_fields}f/{num_methods}m -> concrete",
+                                            n=iterations):
+            group_results.append(r)
+        for r in run_with_and_without_gc(f"Interface {num_fields}f/{num_methods}m -> concrete",
                                             lambda: make_big_concrete_from_interface(make_big_interface(num_fields, num_methods, True)),
-                                            n=iterations))
-        group_results.append(run_and_collect(f"ABC {num_methods} methods",
+                                            n=iterations):
+            group_results.append(r)
+        for r in run_with_and_without_gc(f"ABC {num_methods} methods",
                                             lambda: make_big_abc(0, num_methods, True),
-                                            n=iterations))
-        group_results.append(run_and_collect(f"ABC {num_methods} -> implementation",
+                                            n=iterations):
+            group_results.append(r)
+        for r in run_with_and_without_gc(f"ABC {num_methods} -> implementation",
                                             lambda: make_big_abc_impl(make_big_abc(0, num_methods, True)),
-                                            n=iterations))
+                                            n=iterations):
+            group_results.append(r)
+
         print()
 
         plot_group(group_results, f"{size_name} class suite: {num_fields} fields & {num_methods} methods - {iterations} iterations", cols=2)
