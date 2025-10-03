@@ -3,12 +3,12 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, concrete, InterfaceBase
+from interface import interface, concrete
 from abc import ABC, abstractmethod
 
 
 @interface
-class FooInterface(InterfaceBase):
+class FooInterface:
     x: int
     def do(self): ...
     @staticmethod
@@ -45,7 +45,7 @@ class ConcreteFooABC(AbstractFoo):
 
 def make_interface_class():
     @interface
-    class FakeInterface(InterfaceBase):
+    class FakeInterface:
         a: int
         def f(self): ...
     return FakeInterface

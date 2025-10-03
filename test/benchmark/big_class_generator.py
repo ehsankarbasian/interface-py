@@ -5,7 +5,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, concrete, InterfaceBase
+from interface import interface, concrete
 from abc import ABC, abstractmethod
 
 
@@ -15,7 +15,7 @@ def make_big_interface(num_fields=100, num_methods=100, with_annotations=True):
     index = next(_unique_counter)
     cls_name = f"BigInterface_{num_fields}f_{num_methods}m_{index}"
 
-    lines = [f"class {cls_name}(InterfaceBase):"]
+    lines = [f"class {cls_name}:"]
     for i in range(num_fields):
         if with_annotations:
             if i % 2 == 0:
@@ -29,9 +29,9 @@ def make_big_interface(num_fields=100, num_methods=100, with_annotations=True):
         lines.append(f"    def method_{j}(self): ...")
 
     src = "\n".join(lines)
-    g = {"InterfaceBase": InterfaceBase}
+    global_vars = {}
     local_vars = {}
-    exec(src, g, local_vars)
+    exec(src, global_vars, local_vars)
     cls = local_vars[cls_name]
     cls = interface(cls)
     return cls
