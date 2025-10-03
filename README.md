@@ -1,3 +1,4 @@
+
 # interface-py
 
 **interface-py** is a lightweight Python package for defining **interfaces** and **concrete implementations** with enforced contracts.  
@@ -7,7 +8,7 @@ It ensures that concrete classes implement all required methods, properties, and
 
 ## Features
 
-- Define **interfaces** using a decorator or base class.
+- Define **interfaces** using the `@interface` decorator.
 - Enforce that concrete classes implement all interface methods, fields, and properties.
 - Support for **fields** with three declaration styles:
   1. With annotation only → `x: int`
@@ -33,10 +34,10 @@ pip install interface-py
 ### Defining an Interface
 
 ```python
-from interface_py import interface, InterfaceBase
+from interface_py import interface
 
 @interface
-class HumanInterface(InterfaceBase):
+class HumanInterface:
     # field definitions
     name: str
     age: int = ...
@@ -81,15 +82,18 @@ class Soldier(MilitaryHumanInterface):
         self._rank = value
 ```
 
+- `MilitaryHumanInterface` **extends** `HumanInterface`.  
+- `Soldier` **implements all required methods, fields, and properties** from both interfaces automatically.
+
 ---
 
 ## Field Enforcement Examples
 
 ```python
-from interface_py import interface, concrete, InterfaceBase
+from interface_py import interface, concrete
 
 @interface
-class ExampleInterface(InterfaceBase):
+class ExampleInterface:
     x: int              # only annotation
     y: float = ...      # annotation with ellipsis
     z = ...             # plain ellipsis
@@ -117,6 +121,7 @@ class BadImpl(ExampleInterface):
 
 - Instantiating a concrete class that **does not implement all interface methods/fields/properties** raises a `TypeError`.
 - Ensures consistent **interface contracts** across your project.
+- The decorator `@interface` automatically enforces the interface behavior without requiring any base class.
 
 ---
 
