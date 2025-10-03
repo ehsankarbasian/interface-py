@@ -26,12 +26,18 @@ class InterfaceMeta(type):
         if cls._is_interface_ is None:
             raise TypeError("Class must be decorated with @interface or @concrete")
 
+        MAGIC_INCLUDE = {
+            "__init__", "__add__", "__sub__", "__mul__", "__truediv__", "__len__",
+            "__getitem__", "__setitem__", "__iter__", "__next__", "__str__", "__repr__",
+            "__contains__", "__eq__", "__lt__", "__le__", "__gt__", "__ge__", "__hash__"
+        }
+
         if cls._is_interface_:
             # enforce interface contracts
             for attr, value in list(vars(cls).items()):
-                if attr.startswith("__") and attr.endswith("__"):
-                    continue
                 if attr in ("__annotations__", "_is_interface_", "_interface_contracts_"):
+                    continue
+                if attr.startswith("__") and attr.endswith("__") and attr not in MAGIC_INCLUDE:
                     continue
 
                 # ---- METHODS ----
@@ -40,23 +46,28 @@ class InterfaceMeta(type):
                         raise TypeError(
                             f"Method '{attr}' in interface '{cls.__name__}' must have empty body."
                         )
-                    cls._interface_contracts_[attr] = "method"
+                    sig = inspect.signature(value)
+                    cls._interface_contracts_[attr] = ("method", sig, "function")
                     continue
 
                 if isinstance(value, staticmethod):
-                    if not Helper.is_empty_function(value.__func__):
+                    fn = value.__func__
+                    if not Helper.is_empty_function(fn):
                         raise TypeError(
                             f"Static method '{attr}' in interface '{cls.__name__}' must have empty body."
                         )
-                    cls._interface_contracts_[attr] = "method"
+                    sig = inspect.signature(fn)
+                    cls._interface_contracts_[attr] = ("method", sig, "staticmethod")
                     continue
 
                 if isinstance(value, classmethod):
-                    if not Helper.is_empty_function(value.__func__):
+                    fn = value.__func__
+                    if not Helper.is_empty_function(fn):
                         raise TypeError(
                             f"Class method '{attr}' in interface '{cls.__name__}' must have empty body."
                         )
-                    cls._interface_contracts_[attr] = "method"
+                    sig = inspect.signature(fn)
+                    cls._interface_contracts_[attr] = ("method", sig, "classmethod")
                     continue
 
                 # ---- PROPERTY ----
@@ -81,21 +92,30 @@ class InterfaceMeta(type):
                         )
                     if errors:
                         raise TypeError("\n".join(errors))
-                    cls._interface_contracts_[attr] = "method"
+                    if value.fget is not None:
+                        cls._interface_contracts_[f"{attr}.fget"] = ("method", inspect.signature(value.fget), "property_get")
+                    if value.fset is not None:
+                        cls._interface_contracts_[f"{attr}.fset"] = ("method", inspect.signature(value.fset), "property_set")
+                    if value.fdel is not None:
+                        cls._interface_contracts_[f"{attr}.fdel"] = ("method", inspect.signature(value.fdel), "property_del")
+                    cls._interface_contracts_[attr] = ("property", None, None)
                     continue
 
                 # ---- FIELD PLACEHOLDER ----
                 ann = cls.__annotations__.get(attr) if hasattr(cls, "__annotations__") else None
                 if ann is not None:
                     if value is Ellipsis:
-                        cls._interface_contracts_[attr] = "field"
+                        cls._interface_contracts_[attr] = ("field", None, None)
                         continue
                     if attr not in cls.__dict__:
-                        cls._interface_contracts_[attr] = "field"
+                        cls._interface_contracts_[attr] = ("field", None, None)
                         continue
 
                 if value is Ellipsis:
-                    cls._interface_contracts_[attr] = "field"
+                    cls._interface_contracts_[attr] = ("field", None, None)
+                    continue
+
+                if isinstance(value, type):
                     continue
 
                 raise TypeError(
@@ -109,17 +129,36 @@ class InterfaceMeta(type):
 
         else:
             # enforce concrete implementation
-            contracts: dict[str, str] = {}
+            contracts: dict[str, tuple] = {}
             for base in cls.__mro__[1:]:
                 if hasattr(base, "_interface_contracts_"):
                     contracts.update(base._interface_contracts_)
 
             missing = []
-            for name, kind in contracts.items():
+            signature_mismatches = []
+
+            for name, info in contracts.items():
+                kind = info[0]
                 if kind == "method":
+                    expected_sig = info[1]
+                    expected_type = info[2]
                     impl = getattr(cls, name, None)
                     if impl is None or Helper.is_empty_function(impl):
                         missing.append(name)
+                        continue
+                    try:
+                        impl_sig = inspect.signature(impl)
+                    except (ValueError, TypeError):
+                        impl_sig = None
+                    if expected_sig is not None and impl_sig is not None:
+                        # normalize: for instance methods, both include 'self' usually — compare directly
+                        if impl_sig.parameters.keys() != expected_sig.parameters.keys():
+                            signature_mismatches.append(
+                                (name, expected_sig, impl_sig)
+                            )
+                    else:
+                        if expected_sig is not None and impl_sig is None:
+                            signature_mismatches.append((name, expected_sig, impl_sig))
                 elif kind == "field":
                     if not hasattr(cls, name):
                         missing.append(name)
@@ -127,8 +166,33 @@ class InterfaceMeta(type):
                         val = getattr(cls, name)
                         if val is Ellipsis:
                             missing.append(name)
+                elif kind == "property":
+                    prop_obj = getattr(cls, name, None)
+                    if not isinstance(prop_obj, property):
+                        missing.append(name)
+                    else:
+                        # check individual accessors
+                        for acc in ("fget", "fset", "fdel"):
+                            key = f"{name}.{acc}"
+                            if key in contracts:
+                                exp_sig = contracts[key][1]
+                                func = getattr(prop_obj, acc)
+                                if func is None or Helper.is_empty_function(func):
+                                    missing.append(key)
+                                    continue
+                                try:
+                                    impl_sig = inspect.signature(func)
+                                except (ValueError, TypeError):
+                                    impl_sig = None
+                                if exp_sig is not None and impl_sig is not None:
+                                    if impl_sig.parameters.keys() != exp_sig.parameters.keys():
+                                        signature_mismatches.append((key, exp_sig, impl_sig))
 
-            if missing:
-                raise TypeError(
-                    f"Concrete class '{cls.__name__}' must implement contracts: {', '.join(missing)}"
-                )
+            if missing or signature_mismatches:
+                parts: list[str] = []
+                if missing:
+                    parts.append(f"Concrete class '{cls.__name__}' must implement contracts: {', '.join(sorted(missing))}")
+                if signature_mismatches:
+                    for nm, exp, got in signature_mismatches:
+                        parts.append(f"Signature mismatch for '{nm}' in concrete '{cls.__name__}': expected {exp}, got {got}.")
+                raise TypeError("\n".join(parts))

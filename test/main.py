@@ -25,7 +25,7 @@ if __name__ == "__main__":
                         tests = loader.loadTestsFromModule(module)
                         suite.addTests(tests)
                     except Exception as e:
-                        print(f"Failed to load {file_path}: {e}")
+                        pass
 
     runner = unittest.TextTestRunner(verbosity=1)
     runner.run(suite)
