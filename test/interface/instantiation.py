@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, InterfaceBase
+from interface import interface
 
 
 class InterfaceInstantiationTestCase(TestCase):
@@ -14,7 +14,7 @@ class InterfaceInstantiationTestCase(TestCase):
     def setUp(self):
         
         @interface
-        class Level_1_Interface_dot(InterfaceBase): ...
+        class Level_1_Interface_dot: ...
         @interface
         class Level_2_Interface_dot(Level_1_Interface_dot): ...
         @interface
@@ -25,7 +25,7 @@ class InterfaceInstantiationTestCase(TestCase):
         self.Level_3_Interface_dot = Level_3_Interface_dot
         
         @interface
-        class Level_1_Interface_pass(InterfaceBase): pass
+        class Level_1_Interface_pass: pass
         @interface
         class Level_2_Interface_pass(Level_1_Interface_pass): pass
         @interface
@@ -49,9 +49,6 @@ class InterfaceInstantiationTestCase(TestCase):
         return super().tearDown()
     
     
-    def test_no_instance_from_InterfaceBase(self):
-        self.assertRaises(Exception, InterfaceBase)
-    
     def test_no_instance_from_interface_level_1(self):
         self.assertRaises(Exception, self.Level_1_Interface_dot)
         self.assertRaises(Exception, self.Level_1_Interface_pass)
@@ -65,8 +62,6 @@ class InterfaceInstantiationTestCase(TestCase):
         self.assertRaises(Exception, self.Level_3_Interface_pass)
     
     def test_raised_exception_is_TypeError(self):
-        self.assertRaises(TypeError, InterfaceBase)
-        
         self.assertRaises(TypeError, self.Level_1_Interface_dot)
         self.assertRaises(TypeError, self.Level_1_Interface_pass)
         
@@ -75,12 +70,6 @@ class InterfaceInstantiationTestCase(TestCase):
         
         self.assertRaises(TypeError, self.Level_3_Interface_dot)
         self.assertRaises(TypeError, self.Level_3_Interface_pass)
-    
-    def test_check_exception_message_InterfaceBase(self):
-        expected_message = "Cannot instantiate interface class 'InterfaceBase'"
-        with self.assertRaises(Exception) as context:
-            InterfaceBase()
-        self.assertEqual(str(context.exception), expected_message)
     
     def test_check_exception_message_level_1(self):
         expected_message = "Cannot instantiate interface class 'Level_1_Interface_dot'"

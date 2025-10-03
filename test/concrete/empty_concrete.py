@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, concrete, InterfaceBase
+from interface import interface, concrete
 
 
 class EmptyConcreteTestCase(TestCase):
@@ -14,7 +14,7 @@ class EmptyConcreteTestCase(TestCase):
     def setUp(self):
         
         @interface
-        class EmptyInterface(InterfaceBase):
+        class EmptyInterface:
             pass
         
         self.EmptyInterface = EmptyInterface

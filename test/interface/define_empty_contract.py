@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, InterfaceBase
+from interface import interface
 
 
 class InterfaceCanDefineEmptyContractTestCase(TestCase):
@@ -14,7 +14,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_pass_method(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             def foo(self):
                 pass
@@ -23,7 +23,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_pass_classmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @classmethod
             def foo(cls):
@@ -33,7 +33,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_pass_staticmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @staticmethod
             def foo():
@@ -43,7 +43,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_pass_property(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @property
             def foo(self):
@@ -53,7 +53,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_three_dots_method(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             def foo(self): ...
     
@@ -61,7 +61,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_three_dots_classmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @classmethod
             def foo(cls): ...
@@ -70,7 +70,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_three_dots_staticmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @staticmethod
             def foo(): ...
@@ -79,7 +79,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_three_dots_property(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @property
             def foo(self): ...
@@ -88,7 +88,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_docstring_method(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             def foo(self):
                 """ Explanation """
@@ -97,7 +97,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_docstring_classmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @classmethod
             def foo(cls):
@@ -107,7 +107,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_docstring_staticmethod(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @staticmethod
             def foo():
@@ -117,7 +117,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     def test_empty_docstring_property(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             
             @property
             def foo(self):

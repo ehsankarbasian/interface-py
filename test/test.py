@@ -6,11 +6,11 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, concrete, InterfaceBase
+from interface import interface, concrete
 
 
 # @interface
-# class HumanInterface(InterfaceBase):
+# class HumanInterface:
 #     def talk(self): pass
 #     def walk(self): ...
 
@@ -25,7 +25,6 @@ from interface import interface, concrete, InterfaceBase
 #     def shoot(self): print("shooting")
 
 # Raises error:
-# InterfaceBase()
 # Human()
 # MilitaryHuman()
 

@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, InterfaceBase
+from interface import interface
 
 
 class InterfaceHasNoConcreteFieldTestCase(TestCase):
@@ -16,7 +16,7 @@ class InterfaceHasNoConcreteFieldTestCase(TestCase):
         
         with self.assertRaises(TypeError) as context:
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 x = None
             
         self.assertEqual(str(context.exception), expected_message)
@@ -27,7 +27,7 @@ class InterfaceHasNoConcreteFieldTestCase(TestCase):
         
         with self.assertRaises(TypeError) as context:
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 x = NotImplemented
             
         self.assertEqual(str(context.exception), expected_message)
@@ -38,7 +38,7 @@ class InterfaceHasNoConcreteFieldTestCase(TestCase):
         
         with self.assertRaises(TypeError) as context:
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 x = 3
             
         self.assertEqual(str(context.exception), expected_message)
@@ -49,7 +49,7 @@ class InterfaceHasNoConcreteFieldTestCase(TestCase):
         
         with self.assertRaises(TypeError) as context:
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 x = 'foo'
             
         self.assertEqual(str(context.exception), expected_message)

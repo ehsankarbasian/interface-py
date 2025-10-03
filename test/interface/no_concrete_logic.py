@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, InterfaceBase
+from interface import interface
 
 
 class InterfaceHasNoConcreteLogicTestCase(TestCase):
@@ -17,7 +17,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 def foo(self):
                     return "bar"
@@ -31,7 +31,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @classmethod
                 def foo(cls):
@@ -46,7 +46,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @staticmethod
                 def foo():
@@ -61,7 +61,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -76,7 +76,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -95,7 +95,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -114,7 +114,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -136,7 +136,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -162,7 +162,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -188,7 +188,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -215,7 +215,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -246,7 +246,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):
@@ -273,7 +273,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class MyInterface(InterfaceBase):
+            class MyInterface:
                 
                 @property
                 def foo(self):

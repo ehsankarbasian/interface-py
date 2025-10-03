@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, InterfaceBase
+from interface import interface
 
 
 class InterfaceCanDefineEmptyFieldTestCase(TestCase):
@@ -14,21 +14,21 @@ class InterfaceCanDefineEmptyFieldTestCase(TestCase):
     def test_empty_ellipsis_field(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             x = ...
     
     
     def test_empty_typehint_field(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             x: int
     
     
     def test_empty_ellipsis_and_typehint_field(self):
         
         @interface
-        class MyInterface(InterfaceBase):
+        class MyInterface:
             x: int = ...
 
 
