@@ -16,7 +16,7 @@ def _run_and_collect(label, fn, n=1, interval=0.01):
     mem_samples = memory_usage(wrapper, interval=interval, timeout=None)
     peak = max(mem_samples) - min(mem_samples) if mem_samples else 0.0
     
-    print(f"{label:45s}: {dur:.4f} sec for {n} runs, +{peak:.4f} MiB peak memory")
+    print(f"{label:60s}: {dur:.4f} sec for {n} runs, +{peak:.4f} MiB peak memory")
 
     return {
         "label": label,

@@ -47,7 +47,7 @@ if __name__ == "__main__":
                                             lambda: make_big_interface(num_fields, num_methods, True),
                                             n=iterations):
             group_results.append(result)
-        for result in run_with_and_without_gc(f"Interface {num_fields}f/{num_methods}m -> concrete",
+        for result in run_with_and_without_gc(f"Interface {num_fields} fields / {num_methods} methods -> concrete",
                                             lambda: make_big_concrete_from_interface(make_big_interface(num_fields, num_methods, True)),
                                             n=iterations):
             group_results.append(result)

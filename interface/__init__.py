@@ -1,1 +1,1 @@
-from .core_api import interface, concrete, InterfaceBase
+from .core_api import interface, concrete
