@@ -1,8 +1,8 @@
-from interface import InterfaceBase, interface, concrete
+from interface import interface, concrete
 
 
 @interface
-class Human(InterfaceBase):
+class Human:
     def talk(self): pass
     def walk(self): ...
 
