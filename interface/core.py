@@ -142,14 +142,29 @@ class InterfaceMeta(type):
                 if kind == "method":
                     expected_sig = info[1]
                     expected_type = info[2]
-                    impl = getattr(cls, name, None)
+                    
+                    impl = cls.__dict__.get(name, None)
+                    if impl is None:
+                        # maybe inherited
+                        for base in cls.__mro__[1:]:
+                            impl = base.__dict__.get(name)
+                            if impl:
+                                break
+                    
                     if impl is None or Helper.is_empty_function(impl):
                         missing.append(name)
                         continue
+                    
+                    if isinstance(impl, (classmethod, staticmethod)):
+                        func = impl.__func__
+                    else:
+                        func = impl
+                    
                     try:
-                        impl_sig = inspect.signature(impl)
+                        impl_sig = inspect.signature(func)
                     except (ValueError, TypeError):
                         impl_sig = None
+                        
                     if expected_sig is not None and impl_sig is not None:
                         # normalize: for instance methods, both include 'self' usually — compare directly
                         if impl_sig.parameters.keys() != expected_sig.parameters.keys():
@@ -159,6 +174,7 @@ class InterfaceMeta(type):
                     else:
                         if expected_sig is not None and impl_sig is None:
                             signature_mismatches.append((name, expected_sig, impl_sig))
+                            
                 elif kind == "field":
                     if not hasattr(cls, name):
                         missing.append(name)
@@ -166,6 +182,7 @@ class InterfaceMeta(type):
                         val = getattr(cls, name)
                         if val is Ellipsis:
                             missing.append(name)
+                            
                 elif kind == "property":
                     prop_obj = getattr(cls, name, None)
                     if not isinstance(prop_obj, property):
@@ -180,10 +197,12 @@ class InterfaceMeta(type):
                                 if func is None or Helper.is_empty_function(func):
                                     missing.append(key)
                                     continue
+                                
                                 try:
                                     impl_sig = inspect.signature(func)
                                 except (ValueError, TypeError):
                                     impl_sig = None
+                                    
                                 if exp_sig is not None and impl_sig is not None:
                                     if impl_sig.parameters.keys() != exp_sig.parameters.keys():
                                         signature_mismatches.append((key, exp_sig, impl_sig))
@@ -195,4 +214,5 @@ class InterfaceMeta(type):
                 if signature_mismatches:
                     for nm, exp, got in signature_mismatches:
                         parts.append(f"Signature mismatch for '{nm}' in concrete '{cls.__name__}': expected {exp}, got {got}.")
+                
                 raise TypeError("\n".join(parts))
