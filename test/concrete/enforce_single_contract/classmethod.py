@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface import interface, concrete
 
 
-class ClassMethodContractTestCase(TestCase):
+class ClassMethodContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -67,6 +67,32 @@ class ClassMethodContractTestCase(TestCase):
                 pass
             
         self.assertEqual(str(context.exception), expected_message)
+
+
+class ClassMethodContractEllipsisTestCase(ClassMethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            @classmethod
+            def foo(cls, par_1, par_2):
+                ...
+        
+        self.MyInterface = _MyInterface
+
+
+class ClassMethodContractDocStringTestCase(ClassMethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            @classmethod
+            def foo(cls, par_1, par_2):
+                """ The DocString """
+        
+        self.MyInterface = _MyInterface
 
 
 if __name__ == "__main__":
