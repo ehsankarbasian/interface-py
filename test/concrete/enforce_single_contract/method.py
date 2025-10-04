@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface import interface, concrete
 
 
-class MethodContractTestCase(TestCase):
+class MethodContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -65,16 +65,16 @@ class MethodContractTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
-class ConstructorContractTestCase(TestCase):
+class ConstructorContractPassTestCase(TestCase):
     
     def setUp(self):
         
         @interface
-        class MyInterface:
+        class _MyInterface:
             def __init__(self, a, b):
                 pass
         
-        self.MyInterface = MyInterface
+        self.MyInterface = _MyInterface
     
     
     def tearDown(self):
@@ -123,16 +123,16 @@ class ConstructorContractTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
-class MagicMethodContractTestCase(TestCase):
+class MagicMethodContractPassTestCase(TestCase):
     
     def setUp(self):
         
         @interface
-        class MyInterface:
+        class _MyInterface:
             def __add__(self, var):
                 pass
         
-        self.MyInterface = MyInterface
+        self.MyInterface = _MyInterface
     
     
     def tearDown(self):
@@ -165,6 +165,79 @@ class MagicMethodContractTestCase(TestCase):
                 pass
             
         self.assertEqual(str(context.exception), expected_message)
+
+
+class MethodContractEllipsisTestCase(MethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def foo(self, par_1, par_2):
+                ...
+        
+        self.MyInterface = _MyInterface
+
+
+class ConstructorContractEllipsisTestCase(ConstructorContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def __init__(self, a, b):
+                ...
+        
+        self.MyInterface = _MyInterface
+
+
+class MagicMethodContractEllipsisTestCase(MagicMethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def __add__(self, var):
+                ...
+        
+        self.MyInterface = _MyInterface
+
+
+class MethodContractDocStringTestCase(MethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def foo(self, par_1, par_2):
+                """ The Docstring """
+    
+        self.MyInterface = _MyInterface
+
+
+class ConstructorContractDocStringTestCase(ConstructorContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def __init__(self, a, b):
+                """ The DocString """
+    
+        self.MyInterface = _MyInterface
+
+
+class MagicMethodContractPassTestCase(MagicMethodContractPassTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            def __add__(self, var):
+                """ The DocString """
+    
+        self.MyInterface = _MyInterface
+
 
 
 if __name__ == "__main__":
