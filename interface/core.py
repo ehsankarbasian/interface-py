@@ -34,7 +34,8 @@ class InterfaceMeta(type):
 
         if cls._is_interface_:
             # enforce interface contracts
-            for attr, value in list(vars(cls).items()):
+            all_attrs = list(vars(cls).items()) + [(attr, None) for attr in cls.__annotations__ if attr not in cls.__dict__]
+            for attr, value in all_attrs:
                 if attr in ("__annotations__", "_is_interface_", "_interface_contracts_"):
                     continue
                 if attr.startswith("__") and attr.endswith("__") and attr not in MAGIC_INCLUDE:
@@ -104,12 +105,8 @@ class InterfaceMeta(type):
                 # ---- FIELD PLACEHOLDER ----
                 ann = cls.__annotations__.get(attr) if hasattr(cls, "__annotations__") else None
                 if ann is not None:
-                    if value is Ellipsis:
-                        cls._interface_contracts_[attr] = ("field", None, None)
-                        continue
-                    if attr not in cls.__dict__:
-                        cls._interface_contracts_[attr] = ("field", None, None)
-                        continue
+                    cls._interface_contracts_[attr] = ("field", None, None)
+                    continue
 
                 if value is Ellipsis:
                     cls._interface_contracts_[attr] = ("field", None, None)
