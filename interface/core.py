@@ -34,6 +34,7 @@ class InterfaceMeta(type):
 
         if cls._is_interface_:
             # enforce interface contracts
+            # TODO: use itertools.chain to lazy load the iterable
             all_attrs = list(vars(cls).items()) + [(attr, None) for attr in cls.__annotations__ if attr not in cls.__dict__]
             for attr, value in all_attrs:
                 if attr in ("__annotations__", "_is_interface_", "_interface_contracts_"):
