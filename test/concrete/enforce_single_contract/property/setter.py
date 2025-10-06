@@ -77,8 +77,15 @@ class PropertyContractPassTestCase(TestCase):
         self.assertEqual(instance.t, 'NEW')
     
     
-    def test_no_implement_contract(self):
-        expected_message = "Concrete class 'MyConcrete' must implement contracts: val"
+    def test_no_implement_contract_reises_exception(self):
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                pass
+    
+    
+    def test_no_implement_contract_exception_message(self):
+        expected_message = "Concrete class 'MyConcrete' must implement contracts: val, val.setter"
         
         with self.assertRaises(TypeError) as context:
             @concrete

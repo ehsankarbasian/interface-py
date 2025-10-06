@@ -21,7 +21,7 @@ class PropertyContractPassTestCase(TestCase):
                 pass
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 pass
         
         self.MyInterface = _MyInterface
@@ -41,7 +41,7 @@ class PropertyContractPassTestCase(TestCase):
                 return "The Value"
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 del self.t
     
     
@@ -54,7 +54,7 @@ class PropertyContractPassTestCase(TestCase):
                 return "The Value"
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 del self.t
         
         MyConcrete()
@@ -69,7 +69,7 @@ class PropertyContractPassTestCase(TestCase):
                 return "The Value"
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 del self.t
         
         instance = MyConcrete()
@@ -81,8 +81,15 @@ class PropertyContractPassTestCase(TestCase):
         self.assertTrue(is_t_deleted)
     
     
-    def test_no_implement_contract(self):
-        expected_message = "Concrete class 'MyConcrete' must implement contracts: val"
+    def test_no_implement_contract_reises_exception(self):
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                pass
+    
+    
+    def test_no_implement_contract_exception_message(self):
+        expected_message = "Concrete class 'MyConcrete' must implement contracts: val, val.deleter"
         
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -104,7 +111,7 @@ class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
                 ...
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 ...
         
         self.MyInterface = _MyInterface
@@ -122,7 +129,7 @@ class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
                 """ The DocString """
             
             @val.deleter
-            def val(self, value):
+            def val(self):
                 """ The DocString """
         
         self.MyInterface = _MyInterface

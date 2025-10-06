@@ -45,7 +45,14 @@ class PropertyContractPassTestCase(TestCase):
         MyConcrete()
     
     
-    def test_no_implement_contract(self):
+    def test_no_implement_contract_reises_exception(self):
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                pass
+    
+    
+    def test_no_implement_contract_exception_message(self):
         expected_message = "Concrete class 'MyConcrete' must implement contracts: val"
         
         with self.assertRaises(TypeError) as context:
