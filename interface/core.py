@@ -74,32 +74,12 @@ class InterfaceMeta(type):
 
                 # ---- PROPERTY ----
                 if isinstance(value, property):
-                    errors: list[str] = []
-                    if not any([value.fget, value.fset, value.fdel]):
-                        errors.append(
-                            f"Property '{attr}' in interface '{cls.__name__}' must define at least "
-                            "a getter, setter or deleter (even if empty)."
+                    prop = getattr(cls, attr, value)
+                    if prop.fset is not None or prop.fdel is not None:
+                        raise TypeError(
+                            f"In interface '{cls.__name__}', property '{attr}' should only be declared, "
+                            "setter and deleter are not allowed."
                         )
-                    if value.fget is not None and not Helper.is_empty_function(value.fget):
-                        errors.append(
-                            f"Property getter '{attr}' in interface '{cls.__name__}' must have empty body."
-                        )
-                    if value.fset is not None and not Helper.is_empty_function(value.fset):
-                        errors.append(
-                            f"Property setter '{attr}' in interface '{cls.__name__}' must have empty body."
-                        )
-                    if value.fdel is not None and not Helper.is_empty_function(value.fdel):
-                        errors.append(
-                            f"Property deleter '{attr}' in interface '{cls.__name__}' must have empty body."
-                        )
-                    if errors:
-                        raise TypeError("\n".join(errors))
-                    if value.fget is not None:
-                        cls._interface_contracts_[f"{attr}.fget"] = ("method", inspect.signature(value.fget), "property_get")
-                    if value.fset is not None:
-                        cls._interface_contracts_[f"{attr}.fset"] = ("method", inspect.signature(value.fset), "property_set")
-                    if value.fdel is not None:
-                        cls._interface_contracts_[f"{attr}.fdel"] = ("method", inspect.signature(value.fdel), "property_del")
                     cls._interface_contracts_[attr] = ("property", None, None)
                     continue
 
@@ -182,28 +162,10 @@ class InterfaceMeta(type):
                             missing.append(name)
                             
                 elif kind == "property":
-                    prop_obj = getattr(cls, name, None)
+                    prop_obj = cls.__dict__.get(name, None)
                     if not isinstance(prop_obj, property):
                         missing.append(name)
-                    else:
-                        # check individual accessors
-                        for acc in ("fget", "fset", "fdel"):
-                            key = f"{name}.{acc}"
-                            if key in contracts:
-                                exp_sig = contracts[key][1]
-                                func = getattr(prop_obj, acc)
-                                if func is None or Helper.is_empty_function(func):
-                                    missing.append(key)
-                                    continue
-                                
-                                try:
-                                    impl_sig = inspect.signature(func)
-                                except (ValueError, TypeError):
-                                    impl_sig = None
-                                    
-                                if exp_sig is not None and impl_sig is not None:
-                                    if impl_sig.parameters.keys() != exp_sig.parameters.keys():
-                                        signature_mismatches.append((key, exp_sig, impl_sig))
+                        continue
 
             if missing or signature_mismatches:
                 parts: list[str] = []
