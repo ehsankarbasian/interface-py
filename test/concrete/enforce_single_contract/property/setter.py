@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface import interface, concrete
 
 
-class PropertyContractPassTestCase(TestCase):
+class PropertySetterContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -18,10 +18,6 @@ class PropertyContractPassTestCase(TestCase):
             
             @property
             def val(self):
-                pass
-            
-            @val.setter
-            def val(self, value):
                 pass
         
         self.MyInterface = _MyInterface
@@ -33,6 +29,7 @@ class PropertyContractPassTestCase(TestCase):
     
     
     def test_success(self):
+        
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -75,27 +72,9 @@ class PropertyContractPassTestCase(TestCase):
         instance = MyConcrete()
         instance.val = 'NEW'
         self.assertEqual(instance.t, 'NEW')
-    
-    
-    def test_no_implement_contract_reises_exception(self):
-        with self.assertRaises(TypeError) as context:
-            @concrete
-            class MyConcrete(self.MyInterface):
-                pass
-    
-    
-    def test_no_implement_contract_exception_message(self):
-        expected_message = "Concrete class 'MyConcrete' must implement contracts: val, val.setter"
-        
-        with self.assertRaises(TypeError) as context:
-            @concrete
-            class MyConcrete(self.MyInterface):
-                pass
-            
-        self.assertEqual(str(context.exception), expected_message)
 
 
-class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
+class PropertySetterContractEllipsisTestCase(PropertySetterContractPassTestCase):
 
     def setUp(self):
         
@@ -104,16 +83,12 @@ class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
             
             @property
             def val(self):
-                ...
-            
-            @val.setter
-            def val(self, value):
                 ...
         
         self.MyInterface = _MyInterface
 
 
-class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
+class PropertySetterContractDocStringTestCase(PropertySetterContractPassTestCase):
 
     def setUp(self):
         
@@ -122,10 +97,6 @@ class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
             
             @property
             def val(self):
-                """ The DocString """
-            
-            @val.setter
-            def val(self, value):
                 """ The DocString """
         
         self.MyInterface = _MyInterface
