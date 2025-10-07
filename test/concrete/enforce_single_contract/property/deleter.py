@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface import interface, concrete
 
 
-class PropertyContractPassTestCase(TestCase):
+class PropertyDeleterContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -17,10 +17,6 @@ class PropertyContractPassTestCase(TestCase):
         class _MyInterface:
             
             @property
-            def val(self):
-                pass
-            
-            @val.deleter
             def val(self):
                 pass
         
@@ -33,6 +29,7 @@ class PropertyContractPassTestCase(TestCase):
     
     
     def test_success(self):
+        
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -46,6 +43,7 @@ class PropertyContractPassTestCase(TestCase):
     
     
     def test_instantiate_good_concrete(self):
+        
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -60,7 +58,7 @@ class PropertyContractPassTestCase(TestCase):
         MyConcrete()
     
     
-    def test_setter_works(self):
+    def test_deleter_works(self):
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -79,27 +77,9 @@ class PropertyContractPassTestCase(TestCase):
         del instance.val
         is_t_deleted = not hasattr(instance, 't')
         self.assertTrue(is_t_deleted)
-    
-    
-    def test_no_implement_contract_reises_exception(self):
-        with self.assertRaises(TypeError) as context:
-            @concrete
-            class MyConcrete(self.MyInterface):
-                pass
-    
-    
-    def test_no_implement_contract_exception_message(self):
-        expected_message = "Concrete class 'MyConcrete' must implement contracts: val, val.deleter"
-        
-        with self.assertRaises(TypeError) as context:
-            @concrete
-            class MyConcrete(self.MyInterface):
-                pass
-            
-        self.assertEqual(str(context.exception), expected_message)
 
 
-class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
+class PropertyDeleterContractEllipsisTestCase(PropertyDeleterContractPassTestCase):
 
     def setUp(self):
         
@@ -107,17 +87,13 @@ class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
         class _MyInterface:
             
             @property
-            def val(self):
-                ...
-            
-            @val.deleter
             def val(self):
                 ...
         
         self.MyInterface = _MyInterface
 
 
-class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
+class PropertyDeleterContractDocStringTestCase(PropertyDeleterContractPassTestCase):
 
     def setUp(self):
         
@@ -125,10 +101,6 @@ class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
         class _MyInterface:
             
             @property
-            def val(self):
-                """ The DocString """
-            
-            @val.deleter
             def val(self):
                 """ The DocString """
         
