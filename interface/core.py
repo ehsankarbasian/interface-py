@@ -1,4 +1,4 @@
-import re
+import ast
 import inspect
 
 from .helper_functions import Helper
@@ -81,18 +81,44 @@ class InterfaceMeta(type):
                             f"In interface '{cls.__name__}', attribute '{attr}' must be declared as a property."
                         )
 
-                    errors = []
+                    errors: list[str] = []
 
+                    source_text = None
                     try:
-                        source = inspect.getsource(cls)
-                        normalized_source = Helper.normalize_source(source)
-                        pattern = rf"@(?:property|{attr}\.getter)\s*def\s+{attr}\s*\("
-                        if re.search(pattern, normalized_source):
-                            errors.append(
-                                f"In interface '{cls.__name__}', property '{attr}' must not define a getter."
-                            )
+                        source_text = inspect.getsource(cls)
                     except (OSError, TypeError):
-                        pass
+                        source_text = None
+
+                    getter_declared_explicitly = False
+                    if source_text is not None:
+                        try:
+                            parsed = ast.parse(source_text)
+                        except SyntaxError:
+                            parsed = None
+
+                        if parsed is not None:
+                            for node in ast.walk(parsed):
+                                if isinstance(node, ast.ClassDef) and node.name == cls.__name__:
+                                    for sub in ast.walk(node):
+                                        if isinstance(sub, ast.FunctionDef) and sub.name == attr:
+                                            for dec in sub.decorator_list:
+                                                if isinstance(dec, ast.Name) and dec.id == "property":
+                                                    getter_declared_explicitly = True
+                                                    break
+                                                if isinstance(dec, ast.Attribute) and dec.attr == "getter":
+                                                    val = dec.value
+                                                    if isinstance(val, ast.Name) and val.id == attr:
+                                                        getter_declared_explicitly = True
+                                                        break
+                                            if getter_declared_explicitly:
+                                                break
+                                    if getter_declared_explicitly:
+                                        break
+
+                    if getter_declared_explicitly:
+                        errors.append(
+                            f"In interface '{cls.__name__}', property '{attr}' must not define a getter."
+                        )
 
                     if getattr(prop_obj, "fset", None) is not None:
                         errors.append(
@@ -191,7 +217,8 @@ class InterfaceMeta(type):
                 elif kind == "property":
                     prop_obj = cls.__dict__.get(name, None)
                     if not isinstance(prop_obj, property):
-                        missing.append(name)
+                        if name not in missing:
+                            missing.append(name)
                         continue
 
             if missing or signature_mismatches:
