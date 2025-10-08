@@ -90,6 +90,8 @@ class InterfaceMeta(type):
                         source_text = None
 
                     getter_declared_explicitly = False
+                    nonempty_property_getter = False
+
                     if source_text is not None:
                         try:
                             parsed = ast.parse(source_text)
@@ -99,23 +101,25 @@ class InterfaceMeta(type):
                         if parsed is not None:
                             for node in ast.walk(parsed):
                                 if isinstance(node, ast.ClassDef) and node.name == cls.__name__:
-                                    for sub in ast.walk(node):
+                                    for sub in node.body:
                                         if isinstance(sub, ast.FunctionDef) and sub.name == attr:
                                             for dec in sub.decorator_list:
                                                 if isinstance(dec, ast.Name) and dec.id == "property":
-                                                    getter_declared_explicitly = True
+                                                    # property found — check body emptiness
+                                                    if not Helper.is_ast_function_empty(sub):
+                                                        nonempty_property_getter = True
                                                     break
                                                 if isinstance(dec, ast.Attribute) and dec.attr == "getter":
                                                     val = dec.value
                                                     if isinstance(val, ast.Name) and val.id == attr:
                                                         getter_declared_explicitly = True
                                                         break
-                                            if getter_declared_explicitly:
-                                                break
-                                    if getter_declared_explicitly:
+                                        if getter_declared_explicitly:
+                                            break
+                                    if getter_declared_explicitly or nonempty_property_getter:
                                         break
 
-                    if getter_declared_explicitly:
+                    if getter_declared_explicitly or nonempty_property_getter:
                         errors.append(
                             f"In interface '{cls.__name__}', property '{attr}' must not define a getter."
                         )
@@ -135,7 +139,7 @@ class InterfaceMeta(type):
 
                     cls._interface_contracts_[attr] = ("property", None, None)
                     continue
-
+                
                 # ---- FIELD PLACEHOLDER ----
                 ann = cls.__annotations__.get(attr) if hasattr(cls, "__annotations__") else None
                 if ann is not None:

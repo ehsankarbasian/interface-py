@@ -9,6 +9,21 @@ from types import FunctionType
 class Helper:
     
     @staticmethod
+    def is_ast_function_empty(func_node):
+        if not func_node.body:
+            return True
+        body = func_node.body
+        if len(body) == 1:
+            stmt = body[0]
+            if isinstance(stmt, ast.Pass):
+                return True
+            if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant):
+                if stmt.value.value in (None, Ellipsis) or isinstance(stmt.value.value, str):
+                    return True
+        return False
+    
+    
+    @staticmethod
     def find_func_node_from_file(func):
         try:
             source_file = inspect.getsourcefile(func) or inspect.getfile(func)

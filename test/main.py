@@ -4,6 +4,7 @@ import unittest
 import importlib.util
 from pathlib import Path
 
+
 if __name__ == "__main__":
     PROJECT_ROOT = Path(__file__).parent.parent
     TEST_DIR = PROJECT_ROOT / "test"
