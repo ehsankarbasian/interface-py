@@ -1,3 +1,4 @@
+import re
 import inspect
 
 from .helper_functions import Helper
@@ -74,12 +75,38 @@ class InterfaceMeta(type):
 
                 # ---- PROPERTY ----
                 if isinstance(value, property):
-                    prop = getattr(cls, attr, value)
-                    if prop.fset is not None or prop.fdel is not None:
+                    prop_obj = cls.__dict__.get(attr, None)
+                    if not isinstance(prop_obj, property):
                         raise TypeError(
-                            f"In interface '{cls.__name__}', property '{attr}' should only be declared, "
-                            "setter and deleter are not allowed."
+                            f"In interface '{cls.__name__}', attribute '{attr}' must be declared as a property."
                         )
+
+                    errors = []
+
+                    try:
+                        source = inspect.getsource(cls)
+                        normalized_source = Helper.normalize_source(source)
+                        pattern = rf"@(?:property|{attr}\.getter)\s*def\s+{attr}\s*\("
+                        if re.search(pattern, normalized_source):
+                            errors.append(
+                                f"In interface '{cls.__name__}', property '{attr}' must not define a getter."
+                            )
+                    except (OSError, TypeError):
+                        pass
+
+                    if getattr(prop_obj, "fset", None) is not None:
+                        errors.append(
+                            f"In interface '{cls.__name__}', property '{attr}' must not define a setter."
+                        )
+
+                    if getattr(prop_obj, "fdel", None) is not None:
+                        errors.append(
+                            f"In interface '{cls.__name__}', property '{attr}' must not define a deleter."
+                        )
+
+                    if errors:
+                        raise TypeError("\n".join(errors))
+
                     cls._interface_contracts_[attr] = ("property", None, None)
                     continue
 
