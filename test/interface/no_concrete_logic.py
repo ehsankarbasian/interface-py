@@ -56,7 +56,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property(self):
-        expected_message = "Property getter 'foo' in interface 'MyInterface' must have empty body."
+        expected_message = "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed."
         
         with self.assertRaises(TypeError) as context:
             
@@ -71,7 +71,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property_getter(self):
-        expected_message = "Property getter 'foo' in interface 'MyInterface' must have empty body."
+        expected_message = "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed."
         
         with self.assertRaises(TypeError) as context:
             
@@ -90,7 +90,7 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property_setter(self):
-        expected_message = "Property setter 'foo' in interface 'MyInterface' must have empty body."
+        expected_message = "In interface 'MyInterface', property 'foo' must not define a setter."
         
         with self.assertRaises(TypeError) as context:
             
@@ -109,8 +109,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property_deleter(self):
-        expected_message = "Property deleter 'foo' in interface 'MyInterface' must have empty body."
-        
+        expected_message = "In interface 'MyInterface', property 'foo' must not define a deleter."
+
         with self.assertRaises(TypeError) as context:
             
             @interface
@@ -129,8 +129,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_getter_setter(self):
         expected_messages = '\n'.join([
-            "Property getter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property setter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed.",
+            "In interface 'MyInterface', property 'foo' should not define setter or deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
@@ -155,8 +155,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_getter_deleter(self):
         expected_messages = '\n'.join([
-            "Property getter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed.",
+            "In interface 'MyInterface', property 'foo' should not define setter or deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
@@ -181,8 +181,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_setter_deleter(self):
         expected_messages = '\n'.join([
-            "Property setter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' must not define a setter.",
+            "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
@@ -207,9 +207,9 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_getter_setter_deleter(self):
         expected_messages = '\n'.join([
-            "Property getter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property setter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' must not define a getter.",
+            "In interface 'MyInterface', property 'foo' must not define a setter.",
+            "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
@@ -238,9 +238,9 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_propertybody_setter_deleter(self):
         expected_messages = '\n'.join([
-            "Property getter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property setter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' must not define a getter.",
+            "In interface 'MyInterface', property 'foo' must not define a setter.",
+            "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
@@ -265,9 +265,9 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_propertybody_getter_setter_deleter(self):
         expected_messages = '\n'.join([
-            "Property getter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property setter 'foo' in interface 'MyInterface' must have empty body.",
-            "Property deleter 'foo' in interface 'MyInterface' must have empty body."
+            "In interface 'MyInterface', property 'foo' must not define a getter.",
+            "In interface 'MyInterface', property 'foo' must not define a setter.",
+            "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
         with self.assertRaises(TypeError) as context:
