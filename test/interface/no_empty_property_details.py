@@ -1,21 +1,24 @@
 import unittest
 from unittest import TestCase
 
-import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
-sys.path.append(path)
+from pathlib import Path
+# find absolute project root
+ROOT_PATH = Path(__file__).resolve().parents[2]
+if str(ROOT_PATH) not in sys.path:
+    sys.path.insert(0, str(ROOT_PATH))
 
 from interface import interface
+from test.utils import load_interface_from_source
 
 
-class InterfaceHasNoConcreteLogicTestCase(TestCase):
+class InterfaceHasNoPropertyGetterTestCase(TestCase):
     
     def test_no_empty_pass_property_getter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
-        
-        with self.assertRaises(TypeError) as context:
-            
+        fake_source = '''
+            from interface import interface
+
             @interface
             class MyInterface:
                 
@@ -26,15 +29,20 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.getter
                 def foo(self):
                     pass
-            
+        '''
+
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
+        
         self.assertEqual(str(context.exception), expected_message)
     
     
     def test_no_empty_ellipsis_property_getter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
-        with self.assertRaises(TypeError) as context:
-            
+        fake_source = '''
+            from interface import interface
+        
             @interface
             class MyInterface:
                 
@@ -45,6 +53,10 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.getter
                 def foo(self):
                     ...
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_message)
     
@@ -52,7 +64,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     def test_no_empty_docstring_property_getter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -64,9 +77,15 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.getter
                 def foo(self):
                     """ The DocString """
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_message)
-    
+
+
+class InterfaceHasNoPropertySetterAndDeleterTestCase(TestCase):
     
     def test_no_empty_pass_property_setter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a setter."

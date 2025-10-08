@@ -1,12 +1,15 @@
 import unittest
 from unittest import TestCase
 
-import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
-sys.path.append(path)
+from pathlib import Path
+# find absolute project root
+ROOT_PATH = Path(__file__).resolve().parents[2]
+if str(ROOT_PATH) not in sys.path:
+    sys.path.insert(0, str(ROOT_PATH))
 
 from interface import interface
+from test.utils import load_interface_from_source
 
 
 class InterfaceCanDefineEmptyContractTestCase(TestCase):
@@ -42,15 +45,21 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
     
     def test_empty_pass_property(self):
         
-        @interface
-        class MyInterface:
+        fake_source = '''
+            from interface import interface
             
-            @property
-            def foo(self):
-                pass
+            @interface
+            class MyInterface:
+                
+                @property
+                def foo(self):
+                    pass
+        '''
+        
+        load_interface_from_source(fake_source, "MyInterface")
     
     
-    def test_empty_three_dots_method(self):
+    def test_empty_ellipsis_method(self):
         
         @interface
         class MyInterface:
@@ -58,7 +67,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
             def foo(self): ...
     
 
-    def test_empty_three_dots_classmethod(self):
+    def test_empty_ellipsis_classmethod(self):
         
         @interface
         class MyInterface:
@@ -67,7 +76,7 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
             def foo(cls): ...
     
 
-    def test_empty_three_dots_staticmethod(self):
+    def test_empty_ellipsis_staticmethod(self):
         
         @interface
         class MyInterface:
@@ -76,13 +85,19 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
             def foo(): ...
     
 
-    def test_empty_three_dots_property(self):
+    def test_empty_ellipsis_property(self):
         
-        @interface
-        class MyInterface:
+        fake_source = '''
+            from interface import interface
             
-            @property
-            def foo(self): ...
+            @interface
+            class MyInterface:
+                
+                @property
+                def foo(self): ...
+        '''
+        
+        load_interface_from_source(fake_source, "MyInterface")
     
 
     def test_empty_docstring_method(self):
@@ -116,12 +131,18 @@ class InterfaceCanDefineEmptyContractTestCase(TestCase):
 
     def test_empty_docstring_property(self):
         
-        @interface
-        class MyInterface:
-            
-            @property
-            def foo(self):
-                """ Explanation """
+        fake_source = '''
+            from interface import interface
+        
+            @interface
+            class MyInterface:
+                
+                @property
+                def foo(self):
+                    """ Explanation """
+        '''
+        
+        load_interface_from_source(fake_source, "MyInterface")
 
 
 if __name__ == "__main__":

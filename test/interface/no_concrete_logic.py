@@ -1,12 +1,15 @@
 import unittest
 from unittest import TestCase
 
-import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
-sys.path.append(path)
+from pathlib import Path
+# find absolute project root
+ROOT_PATH = Path(__file__).resolve().parents[2]
+if str(ROOT_PATH) not in sys.path:
+    sys.path.insert(0, str(ROOT_PATH))
 
 from interface import interface
+from test.utils import load_interface_from_source
 
 
 class InterfaceHasNoConcreteLogicTestCase(TestCase):
@@ -56,9 +59,10 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     
     def test_no_concrete_property(self):
-        expected_message = "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed."
+        expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -66,14 +70,19 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @property
                 def foo(self):
                     return "bar"
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_message)
     
     
     def test_no_concrete_property_getter(self):
-        expected_message = "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed."
+        expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -85,7 +94,11 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.getter
                 def foo(self):
                     return "bar"
+        '''
             
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
+
         self.assertEqual(str(context.exception), expected_message)
     
     
@@ -129,11 +142,12 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
     
     def test_no_concrete_property_getter_setter(self):
         expected_messages = '\n'.join([
-            "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed.",
-            "In interface 'MyInterface', property 'foo' should not define setter or deleter."
+            "In interface 'MyInterface', property 'foo' must not define a getter.",
+            "In interface 'MyInterface', property 'foo' must not define a setter."
         ])
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -149,17 +163,22 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.setter
                 def foo(self, value):
                     print(f'set: {value}')
+        '''
             
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
+        
         self.assertEqual(str(context.exception), expected_messages)
     
     
     def test_no_concrete_property_getter_deleter(self):
         expected_messages = '\n'.join([
-            "In interface 'MyInterface', property 'foo' defines an explicit getter, which is not allowed.",
-            "In interface 'MyInterface', property 'foo' should not define setter or deleter."
+            "In interface 'MyInterface', property 'foo' must not define a getter.",
+            "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -175,7 +194,11 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.deleter
                 def foo(self):
                     print(f'Delete')
-            
+        '''
+        
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
+
         self.assertEqual(str(context.exception), expected_messages)
     
     
@@ -212,7 +235,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
             "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -232,6 +256,10 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.deleter
                 def foo(self):
                     print(f'Delete')
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_messages)
     
@@ -243,7 +271,8 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
             "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
-        with self.assertRaises(TypeError) as context:
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -259,6 +288,10 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.deleter
                 def foo(self):
                     print(f'Delete')
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_messages)
     
@@ -270,7 +303,9 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
             "In interface 'MyInterface', property 'foo' must not define a deleter."
         ])
         
-        with self.assertRaises(TypeError) as context:
+
+        fake_source = '''
+            from interface import interface
             
             @interface
             class MyInterface:
@@ -290,6 +325,10 @@ class InterfaceHasNoConcreteLogicTestCase(TestCase):
                 @foo.deleter
                 def foo(self):
                     print(f'Delete')
+        '''
+            
+        with self.assertRaises(TypeError) as context:
+            load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_messages)
 
