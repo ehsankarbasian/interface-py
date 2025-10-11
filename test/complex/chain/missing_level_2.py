@@ -7,10 +7,10 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from interface import concrete
-from test.complex.chain.test_helpers import ContractEnforceTestCase
+from test.complex.chain.test_helpers import ContractEnforceLeveledTestCase
 
 
-class ChainedInterfaceMissingLevel2TestCase(ContractEnforceTestCase):
+class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
     
     chain_level = 2
     
