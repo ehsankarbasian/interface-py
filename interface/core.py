@@ -172,43 +172,114 @@ class InterfaceMeta(type):
             missing = []
             signature_mismatches = []
 
+            # determine whether any interface in mro explicitly declared __init__
+            explicit_init_in_interfaces = any(
+                "__init__" in getattr(base, "_interface_contracts_", {})
+                for base in cls.__mro__[1:]
+                if getattr(base, "_is_interface_", False)
+            )
+
             for name, info in contracts.items():
                 kind = info[0]
                 if kind == "method":
                     expected_sig = info[1]
                     expected_type = info[2]
                     
+                    # first check in the concrete class itself
                     impl = cls.__dict__.get(name, None)
+
+                    # if not in concrete class, search bases but IGNORE implementations that live on INTERFACE bases
+                    source_cls_of_impl = None
                     if impl is None:
-                        # maybe inherited
                         for base in cls.__mro__[1:]:
-                            impl = base.__dict__.get(name)
-                            if impl:
-                                break
-                    
-                    if impl is None or Helper.is_empty_function(impl):
+                            candidate = base.__dict__.get(name)
+                            if candidate is None:
+                                continue
+                            # skip candidate if it comes from an interface — interface placeholders are NOT implementations
+                            if getattr(base, "_is_interface_", False):
+                                # keep searching; this indicates the name is declared on an interface, not implemented
+                                continue
+                            # candidate comes from a non-interface base => treat as an implementation
+                            impl = candidate
+                            source_cls_of_impl = base
+                            break
+
+                    # if still not found, it's missing
+                    if impl is None:
                         missing.append(name)
                         continue
                     
-                    if isinstance(impl, (classmethod, staticmethod)):
+                    # determine actual type and underlying function (if any)
+                    actual_type = None
+                    if isinstance(impl, staticmethod):
+                        actual_type = "staticmethod"
                         func = impl.__func__
-                    else:
+                    elif isinstance(impl, classmethod):
+                        actual_type = "classmethod"
+                        func = impl.__func__
+                    elif isinstance(impl, property):
+                        actual_type = "property"
+                        func = None
+                    elif inspect.isfunction(impl):
+                        actual_type = "function"
                         func = impl
-                    
+                    else:
+                        # fallback: callable objects (decorated or descriptors stored at class level)
+                        if callable(impl):
+                            actual_type = "function"
+                            func = impl
+                        else:
+                            actual_type = "field"
+                            func = None
+
+                    # enforce type equality if expected_type is provided
+                    if expected_type is not None and actual_type != expected_type:
+                        signature_mismatches.append((name, expected_type, actual_type))
+                        continue
+
                     try:
-                        impl_sig = inspect.signature(func)
+                        impl_sig = inspect.signature(func) if func is not None else None
                     except (ValueError, TypeError):
                         impl_sig = None
                         
-                    if expected_sig is not None and impl_sig is not None:
-                        # normalize: for instance methods, both include 'self' usually — compare directly
-                        if impl_sig.parameters.keys() != expected_sig.parameters.keys():
-                            signature_mismatches.append(
-                                (name, expected_sig, impl_sig)
-                            )
+                    if expected_sig is not None:
+                        if name == "__init__":
+                            # enforce __init__ only if some interface explicitly declared it
+                            if not explicit_init_in_interfaces:
+                                # interface chain didn't declare __init__ explicitly -> don't enforce
+                                continue
+
+                            # if the concrete inherited a generic init (e.g., object.__init__ with *args/**kwargs)
+                            # treat it as missing (not a signature mismatch)
+                            if impl_sig is not None:
+                                meaningful = [
+                                    p for p in impl_sig.parameters.values()
+                                    if p.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+                                ]
+                                # if only 'self' or no meaningful parameters => consider as not implemented
+                                if len(meaningful) <= 1:
+                                    missing.append(name)
+                                    continue
+                            else:
+                                # couldn't obtain signature -> consider mismatch
+                                signature_mismatches.append((name, expected_sig, impl_sig))
+                                continue
+
+                            # finally compare signatures
+                            if impl_sig is None or impl_sig.parameters.keys() != expected_sig.parameters.keys():
+                                signature_mismatches.append((name, expected_sig, impl_sig))
+                        else:
+                            # general methods
+                            if impl_sig is None:
+                                signature_mismatches.append((name, expected_sig, impl_sig))
+                                continue
+                            if impl_sig.parameters.keys() != expected_sig.parameters.keys():
+                                signature_mismatches.append(
+                                    (name, expected_sig, impl_sig)
+                                )
                     else:
-                        if expected_sig is not None and impl_sig is None:
-                            signature_mismatches.append((name, expected_sig, impl_sig))
+                        # expected_sig is None but impl_sig is None? if expected_sig not None we handled above
+                        pass
                             
                 elif kind == "field":
                     if not hasattr(cls, name):
@@ -220,6 +291,16 @@ class InterfaceMeta(type):
                             
                 elif kind == "property":
                     prop_obj = cls.__dict__.get(name, None)
+                    if prop_obj is None:
+                        for base in cls.__mro__[1:]:
+                            candidate = base.__dict__.get(name)
+                            if candidate is None:
+                                continue
+                            if getattr(base, "_is_interface_", False):
+                                continue
+                            prop_obj = candidate
+                            break
+
                     if not isinstance(prop_obj, property):
                         if name not in missing:
                             missing.append(name)
