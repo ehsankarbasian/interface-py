@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.parent.absolute())
+path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.absolute())
 sys.path.append(path)
 
 from interface import interface
