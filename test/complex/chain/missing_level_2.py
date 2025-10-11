@@ -13,10 +13,9 @@ from test.complex.chain.test_helpers import ContractEnforceLeveledTestCase
 class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
     
     chain_level = 2
+    expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
     
     def test_chain_2_missing_contract_1_field(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['field_1']
         
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -35,12 +34,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_1']
+        self.assertContractError(context, expected_contracts)
 
     
     def test_chain_2_missing_contract_1_method(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['method_1']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -57,12 +55,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['method_1']
+        self.assertContractError(context, expected_contracts)
     
     
     def test_chain_2_missing_contract_2_field(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['field_2']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -81,12 +78,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_2']
+        self.assertContractError(context, expected_contracts)
     
     
     def test_chain_2_missing_contract_2_staticmethod(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['static_method_2']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -102,12 +98,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['static_method_2']
+        self.assertContractError(context, expected_contracts)
         
         
     def test_chain_2_missing_contract_2_classmethod(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['class_method_2']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -123,12 +118,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def static_method_2(param_1):
                     pass
                 
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['class_method_2']
+        self.assertContractError(context, expected_contracts)
         
     
     def test_chain_2_missing_contract_1_2_some_1(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['field_1', 'static_method_2']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -143,12 +137,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_1', 'static_method_2']
+        self.assertContractError(context, expected_contracts)
 
 
     def test_chain_2_missing_contract_1_2_some_2(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['field_2', 'method_1']
 
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -164,12 +157,11 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def class_method_2(cls):
                     ...
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_2', 'method_1']
+        self.assertContractError(context, expected_contracts)
 
 
     def test_chain_2_missing_contract_1_2_some_3(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts:"
-        expected_contracts = ['field_1', 'static_method_2', 'class_method_2']
         
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -180,19 +172,19 @@ class ChainedInterfaceMissingLevel2TestCase(ContractEnforceLeveledTestCase):
                 def method_1(self):
                     return "Foo"
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_1', 'static_method_2', 'class_method_2']
+        self.assertContractError(context, expected_contracts)
 
 
     def test_chain_2_missing_contract_1_2_all(self):
-        expected_message_prefix = "Concrete class 'Concrete_2' must implement contracts"
-        expected_contracts = ['field_1', 'field_2', 'method_1', 'static_method_2', 'class_method_2']
 
         with self.assertRaises(TypeError) as context:
             @concrete
             class Concrete_2(self.Interface_2):
                 pass
         
-        self.assertContractError(context, expected_message_prefix, expected_contracts)
+        expected_contracts = ['field_1', 'field_2', 'method_1', 'static_method_2', 'class_method_2']
+        self.assertContractError(context, expected_contracts)
 
 
 if __name__ == "__main__":

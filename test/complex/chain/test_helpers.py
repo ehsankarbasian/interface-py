@@ -77,9 +77,12 @@ class ContractEnforceTestCase(TestCase):
 class ContractEnforceLeveledTestCase(ContractEnforceTestCase):
     
     chain_level: int = ...
+    expected_message_prefix: str = ...
     
     def setUp(self):
         self._assertChainLevelSettedCorrectly()
+        self._assertExpectedMessagePrefixSettedCorrectly()
+        
         return super().setUp()
     
     
@@ -90,9 +93,14 @@ class ContractEnforceLeveledTestCase(ContractEnforceTestCase):
         self.assertIsInstance(self.chain_level, int)
     
     
-    def assertContractError(self, context, expected_message_prefix, expected_contracts):
+    def _assertExpectedMessagePrefixSettedCorrectly(self):
+        self.assertIsNotNone(self.expected_message_prefix)
+        self.assertNotEqual(self.expected_message_prefix, Ellipsis)
+        self.assertIsInstance(self.expected_message_prefix, str)
+    
+    def assertContractError(self, context, expected_contracts):
         error_message = str(context.exception)
-        self.assertIn(expected_message_prefix, error_message)
+        self.assertIn(self.expected_message_prefix, error_message)
         
         for contract_name in expected_contracts:
             self.assertIn(contract_name, error_message)
