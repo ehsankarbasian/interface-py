@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="interface-py",
-    version="1.3.3",
+    version="1.3.4",
     author="Ehsan Karbasian",
     author_email="ehsan.karbasian@gmail.com",
     description="A package to define interface in python",
