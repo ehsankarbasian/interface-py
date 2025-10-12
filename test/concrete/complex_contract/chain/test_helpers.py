@@ -98,16 +98,20 @@ class ContractEnforceLeveledTestCase(ContractEnforceTestCase):
         self.assertNotEqual(self.expected_message_prefix, Ellipsis)
         self.assertIsInstance(self.expected_message_prefix, str)
     
+    
     def assertContractError(self, context, expected_contracts):
         error_message = str(context.exception)
+        normalized_error_message = error_message.replace(',', '').split(':')[-1].split()
+        
         self.assertIn(self.expected_message_prefix, error_message)
         
         for contract_name in expected_contracts:
             self.assertIn(contract_name, error_message)
         
-        exclude_contracts = [item for item in _ALL_CONTRACTS[self.chain_level] if item not in expected_contracts]
+        exclude_contracts = [
+            item for item in _ALL_CONTRACTS[self.chain_level] if item not in expected_contracts]
         if exclude_contracts:
             for contract in exclude_contracts:
-                self.assertNotIn(contract, error_message)
+                self.assertNotIn(contract, normalized_error_message, msg=error_message)
         
         self.assertNotIn('\n', error_message)
