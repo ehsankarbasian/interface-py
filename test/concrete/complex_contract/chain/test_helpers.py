@@ -106,7 +106,7 @@ class ContractEnforceLeveledTestCase(ContractEnforceTestCase):
         self.assertIn(self.expected_message_prefix, error_message)
         
         for contract_name in expected_contracts:
-            self.assertIn(contract_name, error_message)
+            self.assertIn(contract_name, normalized_error_message)
         
         exclude_contracts = [
             item for item in _ALL_CONTRACTS[self.chain_level] if item not in expected_contracts]

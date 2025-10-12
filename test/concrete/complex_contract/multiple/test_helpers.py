@@ -121,7 +121,7 @@ class ContractEnforceMultipleTestCase(ContractEnforceTestCase):
         self.assertIn(self.expected_message_prefix, error_message)
         
         for contract_name in expected_contracts:
-            self.assertIn(contract_name, error_message)
+            self.assertIn(contract_name, normalized_error_message)
         
         exclude_contracts = [
             item for item in self._aggregated_contracts if item not in expected_contracts]
