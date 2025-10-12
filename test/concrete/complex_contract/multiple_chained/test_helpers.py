@@ -98,7 +98,7 @@ class _Interface_9(_Interface_5, _Interface_6):
     def property_9(self): pass
 
 
-_INTERFACE_CONTRACTS = {
+__INTERFACE_CONTRACTS = {
     1: ['field_1', 'property_1'],
     2: ['method_2', 'class_method_2', 'property_2'],
     3: ['method_3', 'property_3'],
@@ -108,6 +108,24 @@ _INTERFACE_CONTRACTS = {
     7: ['method_7', 'static_method_7', 'property_7'],
     8: ['field_8', 'method_8', 'property_8'],
     9: ['field_9', 'method_9', 'property_9']
+}
+
+def __get_contract_aggregate(*indexes):
+    result = []
+    
+    for index in indexes:
+        result += __INTERFACE_CONTRACTS[index]
+    
+    return result
+
+
+_AGGREGATED_CONTRACTS = {
+    [2, 4]: __get_contract_aggregate(1, 2, 3, 4),
+    [2, 4, 7]: __get_contract_aggregate(1, 2, 3, 4, 6, 7),
+    [5, 7]: __get_contract_aggregate(1, 2, 3, 5, 6, 7),
+    [5, 8]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 8),
+    [4, 9]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 9),
+    [4, 7, 9]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 9),
 }
 
 
@@ -135,3 +153,55 @@ class ContractEnforceTestCase(TestCase):
         del self.Interface_7
         del self.Interface_8
         del self.Interface_9
+
+
+class ContractEnforceMultipleChainedTestCase(ContractEnforceTestCase):
+    
+    expected_message_prefix: str = ...
+    # self.current_interfaces: list[int]
+    
+    def setUp(self):
+        self._assertExpectedMessagePrefixSettedCorrectly()
+        return super().setUp()
+    
+    def tearDown(self):
+        self._assertCurrentInterfaces()
+        del self.current_interfaces
+        return super().tearDown()
+    
+    def _assertExpectedMessagePrefixSettedCorrectly(self):
+        self.assertIsNotNone(self.expected_message_prefix)
+        self.assertNotEqual(self.expected_message_prefix, Ellipsis)
+        self.assertIsInstance(self.expected_message_prefix, str)
+    
+    def _assertCurrentInterfaces(self):
+        self.assertTrue(hasattr(self, 'current_interfaces'))
+        self.assertIsNotNone(self.current_interfaces)
+        self.assertNotEqual(self.current_interfaces, Ellipsis)
+        self.assertIsInstance(self.current_interfaces, list)
+        for item in self.current_interfaces:
+            self.assertIsInstance(item, int)
+            self.assertGreater(item, 0)
+            self.assertGreaterEqual(9, item)
+    
+    @property
+    def _aggregated_contracts(self):
+        return _AGGREGATED_CONTRACTS[self.current_interfaces]
+
+
+    def assertContractError(self, context, expected_contracts):
+        error_message = str(context.exception)
+        normalized_error_message = error_message.replace(',', '').split(':')[-1].split()
+        
+        self.assertIn(self.expected_message_prefix, error_message)
+        
+        for contract_name in expected_contracts:
+            self.assertIn(contract_name, normalized_error_message)
+        
+        exclude_contracts = [
+            item for item in self._aggregated_contracts if item not in expected_contracts]
+        if exclude_contracts:
+            for contract in exclude_contracts:
+                self.assertNotIn(contract, normalized_error_message, msg=error_message)
+        
+        self.assertNotIn('\n', error_message)
