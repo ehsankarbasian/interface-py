@@ -3,16 +3,15 @@ from unittest import TestCase
 
 import sys
 from pathlib import Path
-# find absolute project root
-ROOT_PATH = Path(__file__).resolve().parents[2]
-if str(ROOT_PATH) not in sys.path:
-    sys.path.insert(0, str(ROOT_PATH))
+PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src import interface
-from test.utils import load_interface_from_source
+from test.interface.test_helpers import SourceLoaderTestCase
 
 
-class InterfaceHasNoPropertyGetterTestCase(TestCase):
+class InterfaceHasNoPropertyGetterTestCase(SourceLoaderTestCase):
     
     def test_no_empty_pass_property_getter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
@@ -32,7 +31,7 @@ class InterfaceHasNoPropertyGetterTestCase(TestCase):
         '''
 
         with self.assertRaises(TypeError) as context:
-            load_interface_from_source(fake_source, "MyInterface")
+            self.load_interface_from_source(fake_source, "MyInterface")
         
         self.assertEqual(str(context.exception), expected_message)
     
@@ -56,7 +55,7 @@ class InterfaceHasNoPropertyGetterTestCase(TestCase):
         '''
             
         with self.assertRaises(TypeError) as context:
-            load_interface_from_source(fake_source, "MyInterface")
+            self.load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_message)
     
@@ -80,7 +79,7 @@ class InterfaceHasNoPropertyGetterTestCase(TestCase):
         '''
             
         with self.assertRaises(TypeError) as context:
-            load_interface_from_source(fake_source, "MyInterface")
+            self.load_interface_from_source(fake_source, "MyInterface")
             
         self.assertEqual(str(context.exception), expected_message)
 

@@ -16,7 +16,6 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
 
     for root, dirs, files in os.walk(TEST_DIR):
-        # حذف پوشه benchmark از پیمایش
         if "benchmark" in dirs:
             dirs.remove("benchmark")
 
