@@ -6,7 +6,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent.resolve()
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from interface import concrete
+from src import concrete
 from test.concrete.complex_contract.multiple.test_helpers import ContractEnforceTestCase
 
 

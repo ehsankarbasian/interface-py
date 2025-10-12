@@ -5,7 +5,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface
+from src import interface
 
 
 @interface

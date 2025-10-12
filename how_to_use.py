@@ -1,4 +1,4 @@
-from interface import interface, concrete
+from src import interface, concrete
 
 
 @interface

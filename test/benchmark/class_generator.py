@@ -3,7 +3,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from interface import interface, concrete
+from src import interface, concrete
 from abc import ABC, abstractmethod
 
 
