@@ -119,13 +119,20 @@ def __get_contract_aggregate(*indexes):
     return result
 
 
+class _HashableList(list):
+    
+    def __hash__(self):
+        value = ''.join([str(item) for item in self])
+        return int(value)
+
+
 _AGGREGATED_CONTRACTS = {
-    [2, 4]: __get_contract_aggregate(1, 2, 3, 4),
-    [2, 4, 7]: __get_contract_aggregate(1, 2, 3, 4, 6, 7),
-    [5, 7]: __get_contract_aggregate(1, 2, 3, 5, 6, 7),
-    [5, 8]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 8),
-    [4, 9]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 9),
-    [4, 7, 9]: __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 9),
+    _HashableList([2, 4]): __get_contract_aggregate(1, 2, 3, 4),
+    _HashableList([2, 4, 7]): __get_contract_aggregate(1, 2, 3, 4, 6, 7),
+    _HashableList([5, 7]): __get_contract_aggregate(1, 2, 3, 5, 6, 7),
+    _HashableList([5, 8]): __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 8),
+    _HashableList([4, 9]): __get_contract_aggregate(1, 2, 3, 4, 5, 6, 9),
+    _HashableList([4, 7, 9]): __get_contract_aggregate(1, 2, 3, 4, 5, 6, 7, 9),
 }
 
 
@@ -163,6 +170,11 @@ class ContractEnforceMultipleChainedTestCase(ContractEnforceTestCase):
     def setUp(self):
         self._assertExpectedMessagePrefixSettedCorrectly()
         return super().setUp()
+    
+    def __setattr__(self, name, value):
+        if name == "current_interfaces":
+            value = _HashableList(value)
+        return super().__setattr__(name, value)
     
     def tearDown(self):
         self._assertCurrentInterfaces()
