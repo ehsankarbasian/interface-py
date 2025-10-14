@@ -42,7 +42,7 @@ class MethodContractPassTestCase(TestCase):
         MyConcrete()
     
     
-    def test_not_the_same_params(self):
+    def test_bad_params_1(self):
         expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (self, par_1)."
         
         with self.assertRaises(TypeError) as context:
@@ -50,6 +50,42 @@ class MethodContractPassTestCase(TestCase):
             class MyConcrete(self.MyInterface):
                 def foo(self, par_1):
                     return par_1
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_2(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (self)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def foo(self):
+                    pass
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_3(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (self, par_2)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def foo(self, par_2):
+                    return par_2
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_4(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (self, par_2, bad_par)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def foo(self, par_2, bad_par):
+                    return par_2
         
         self.assertEqual(str(context.exception), expected_message)
     
@@ -100,13 +136,37 @@ class ConstructorContractPassTestCase(TestCase):
         MyConcrete(1, 2)
     
     
-    def test_not_the_same_params(self):
+    def test_bad_params_1(self):
         expected_message = "Signature mismatch for '__init__' in concrete 'MyConcrete': expected (self, a, b), got (self, a)."
         
         with self.assertRaises(TypeError) as context:
             @concrete
             class MyConcrete(self.MyInterface):
                 def __init__(self, a):
+                    self.a = a
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_2(self):
+        expected_message = "Signature mismatch for '__init__' in concrete 'MyConcrete': expected (self, a, b), got (self, A, b)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def __init__(self, A, b):
+                    pass
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_3(self):
+        expected_message = "Signature mismatch for '__init__' in concrete 'MyConcrete': expected (self, a, b), got (self, a, b, c)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def __init__(self, a, b, c):
                     self.a = a
         
         self.assertEqual(str(context.exception), expected_message)
@@ -154,6 +214,42 @@ class MagicMethodContractPassTestCase(TestCase):
                 return f'{var} foo'
         
         MyConcrete()
+    
+    
+    def test_bad_params_1(self):
+        expected_message = "Signature mismatch for '__add__' in concrete 'MyConcrete': expected (self, var), got (self, a, b)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def __add__(self, a, b):
+                    return a + b
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_2(self):
+        expected_message = "Signature mismatch for '__add__' in concrete 'MyConcrete': expected (self, var), got (self, a)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def __add__(self, a):
+                    return a
+        
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
+    def test_bad_params_3(self):
+        expected_message = "Signature mismatch for '__add__' in concrete 'MyConcrete': expected (self, var), got (self)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                def __add__(self):
+                    return
+        
+        self.assertEqual(str(context.exception), expected_message)
     
     
     def test_no_implement_contract(self):
@@ -227,7 +323,7 @@ class ConstructorContractDocStringTestCase(ConstructorContractPassTestCase):
         self.MyInterface = _MyInterface
 
 
-class MagicMethodContractPassTestCase(MagicMethodContractPassTestCase):
+class MagicMethodContractDocStringTestCase(MagicMethodContractPassTestCase):
 
     def setUp(self):
         
