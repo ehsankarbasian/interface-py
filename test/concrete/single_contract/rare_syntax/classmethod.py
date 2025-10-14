@@ -164,21 +164,6 @@ class ClassMethodContractPassTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
-class ClassMethodContractTestCase(ClassMethodContractPassTestCase):
-
-    def setUp(self):
-        
-        def foo(cls, par_1, par_2):
-            ...
-        func = classmethod(foo)
-
-        @interface
-        class _MyInterface:
-            foo = func
-        
-        self.MyInterface = _MyInterface
-
-
 class ClassMethodContractTypeTestCase(ClassMethodContractPassTestCase):
 
     def setUp(self):

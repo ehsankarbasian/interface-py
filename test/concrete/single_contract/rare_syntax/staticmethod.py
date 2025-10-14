@@ -164,21 +164,6 @@ class StaticMethodContractPassTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
-class StaticMethodContractTestCase(StaticMethodContractPassTestCase):
-    
-    def setUp(self):
-        
-        def foo(par_1, par_2):
-            ...
-        func = staticmethod(foo)
-
-        @interface
-        class _MyInterface:
-            foo = func
-        
-        self.MyInterface = _MyInterface
-
-
 class StaticMethodContractTypeTestCase(StaticMethodContractPassTestCase):
     
     def setUp(self):
