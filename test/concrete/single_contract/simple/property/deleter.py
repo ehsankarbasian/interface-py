@@ -3,13 +3,13 @@ from unittest import TestCase
 
 import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.absolute())
+path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.parent.absolute())
 sys.path.append(path)
 
 from src import interface, concrete
 
 
-class PropertySetterContractPassTestCase(TestCase):
+class PropertyDeleterContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -37,12 +37,13 @@ class PropertySetterContractPassTestCase(TestCase):
             def val(self):
                 return "The Value"
             
-            @val.setter
-            def val(self, value):
-                self.t = value
+            @val.deleter
+            def val(self):
+                del self.t
     
     
     def test_instantiate_good_concrete(self):
+        
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -50,14 +51,14 @@ class PropertySetterContractPassTestCase(TestCase):
             def val(self):
                 return "The Value"
             
-            @val.setter
-            def val(self, value):
-                self.t = value
+            @val.deleter
+            def val(self):
+                del self.t
         
         MyConcrete()
     
     
-    def test_setter_works(self):
+    def test_deleter_works(self):
         @concrete
         class MyConcrete(self.MyInterface):
             
@@ -65,16 +66,20 @@ class PropertySetterContractPassTestCase(TestCase):
             def val(self):
                 return "The Value"
             
-            @val.setter
-            def val(self, value):
-                self.t = value
+            @val.deleter
+            def val(self):
+                del self.t
         
         instance = MyConcrete()
-        instance.val = 'NEW'
+        instance.t = 'NEW'
         self.assertEqual(instance.t, 'NEW')
+        
+        del instance.val
+        is_t_deleted = not hasattr(instance, 't')
+        self.assertTrue(is_t_deleted)
 
 
-class PropertySetterContractEllipsisTestCase(PropertySetterContractPassTestCase):
+class PropertyDeleterContractEllipsisTestCase(PropertyDeleterContractPassTestCase):
 
     def setUp(self):
         
@@ -88,7 +93,7 @@ class PropertySetterContractEllipsisTestCase(PropertySetterContractPassTestCase)
         self.MyInterface = _MyInterface
 
 
-class PropertySetterContractDocStringTestCase(PropertySetterContractPassTestCase):
+class PropertyDeleterContractDocStringTestCase(PropertyDeleterContractPassTestCase):
 
     def setUp(self):
         

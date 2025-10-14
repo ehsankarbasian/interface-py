@@ -9,14 +9,14 @@ sys.path.append(path)
 from src import interface, concrete
 
 
-class PropertyContractPassTestCase(TestCase):
+class StaticMethodContractPassTestCase(TestCase):
     
     def setUp(self):
         
         @interface
         class _MyInterface:
-            @property
-            def val(self):
+            @staticmethod
+            def foo(par_1, par_2):
                 pass
         
         self.MyInterface = _MyInterface
@@ -30,30 +30,36 @@ class PropertyContractPassTestCase(TestCase):
     def test_success(self):
         @concrete
         class MyConcrete(self.MyInterface):
-            @property
-            def val(self):
-                return "The Value"
+            @staticmethod
+            def foo(par_1, par_2):
+                return f'{par_1} {par_2}'
     
     
     def test_instantiate_good_concrete(self):
         @concrete
         class MyConcrete(self.MyInterface):
-            @property
-            def val(self):
-                return "The Value"
+            @staticmethod
+            def foo(par_1, par_2):
+                return f'{par_1} {par_2}'
         
         MyConcrete()
     
     
-    def test_no_implement_contract_reises_exception(self):
+    def test_not_the_same_params(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (par_1, par_2), got (par_1)."
+        
         with self.assertRaises(TypeError) as context:
             @concrete
             class MyConcrete(self.MyInterface):
-                pass
+                @staticmethod
+                def foo(par_1):
+                    return par_1
+        
+        self.assertEqual(str(context.exception), expected_message)
     
     
-    def test_no_implement_contract_exception_message(self):
-        expected_message = "Concrete class 'MyConcrete' must implement contracts: val"
+    def test_no_implement_contract(self):
+        expected_message = "Concrete class 'MyConcrete' must implement contracts: foo"
         
         with self.assertRaises(TypeError) as context:
             @concrete
@@ -63,27 +69,27 @@ class PropertyContractPassTestCase(TestCase):
         self.assertEqual(str(context.exception), expected_message)
 
 
-class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
-
+class StaticMethodContractEllipsisTestCase(StaticMethodContractPassTestCase):
+    
     def setUp(self):
         
         @interface
         class _MyInterface:
-            @property
-            def val(self):
+            @staticmethod
+            def foo(par_1, par_2):
                 ...
         
         self.MyInterface = _MyInterface
 
 
-class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
-
+class StaticMethodContractDocStringTestCase(StaticMethodContractPassTestCase):
+    
     def setUp(self):
         
         @interface
         class _MyInterface:
-            @property
-            def val(self):
+            @staticmethod
+            def foo(par_1, par_2):
                 """ The DocString """
         
         self.MyInterface = _MyInterface

@@ -3,13 +3,13 @@ from unittest import TestCase
 
 import pathlib
 import sys
-path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.absolute())
+path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.parent.absolute())
 sys.path.append(path)
 
 from src import interface, concrete
 
 
-class PropertyGetterContractPassTestCase(TestCase):
+class PropertyContractPassTestCase(TestCase):
     
     def setUp(self):
         
@@ -28,36 +28,42 @@ class PropertyGetterContractPassTestCase(TestCase):
     
     
     def test_success(self):
-        
         @concrete
         class MyConcrete(self.MyInterface):
-            
             @property
             def val(self):
                 return "The Value"
-            
-            @val.getter
-            def val(self):
-                return "Value"
     
     
     def test_instantiate_good_concrete(self):
-        
         @concrete
         class MyConcrete(self.MyInterface):
-            
             @property
             def val(self):
                 return "The Value"
-            
-            @val.getter
-            def val(self):
-                return "Value"
         
         MyConcrete()
+    
+    
+    def test_no_implement_contract_reises_exception(self):
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                pass
+    
+    
+    def test_no_implement_contract_exception_message(self):
+        expected_message = "Concrete class 'MyConcrete' must implement contracts: val"
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                pass
+            
+        self.assertEqual(str(context.exception), expected_message)
 
 
-class PropertyGetterContractEllipsisTestCase(PropertyGetterContractPassTestCase):
+class PropertyContractEllipsisTestCase(PropertyContractPassTestCase):
 
     def setUp(self):
         
@@ -70,7 +76,7 @@ class PropertyGetterContractEllipsisTestCase(PropertyGetterContractPassTestCase)
         self.MyInterface = _MyInterface
 
 
-class PropertyGetterContractDocStringTestCase(PropertyGetterContractPassTestCase):
+class PropertyContractDocStringTestCase(PropertyContractPassTestCase):
 
     def setUp(self):
         
