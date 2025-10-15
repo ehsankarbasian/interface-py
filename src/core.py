@@ -35,7 +35,7 @@ class InterfaceMeta(type):
 
         if cls._is_interface_:
             # enforce interface contracts
-            # TODO: use itertools.chain to lazy load the iterable
+            # TODO (PERFORMANCE): use itertools.chain to lazy load the iterable
             all_attrs = list(vars(cls).items()) + [(attr, None) for attr in cls.__annotations__ if attr not in cls.__dict__]
             for attr, value in all_attrs:
                 if attr in ("__annotations__", "_is_interface_", "_interface_contracts_"):
@@ -288,6 +288,13 @@ class InterfaceMeta(type):
                         val = getattr(cls, name)
                         if val is Ellipsis:
                             missing.append(name)
+                            continue
+                        
+                        impl = cls.__dict__.get(name, None)
+                        if inspect.isfunction(impl) or isinstance(impl, (property, staticmethod, classmethod)):
+                            raise TypeError(
+                                f"Contract violation for '{name}' in '{cls.__name__}': expected a field, got {type(impl).__name__}."
+                            )
                             
                 elif kind == "property":
                     prop_obj = cls.__dict__.get(name, None)
