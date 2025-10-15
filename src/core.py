@@ -297,21 +297,32 @@ class InterfaceMeta(type):
                             )
                             
                 elif kind == "property":
-                    prop_obj = cls.__dict__.get(name, None)
-                    if prop_obj is None:
-                        for base in cls.__mro__[1:]:
-                            candidate = base.__dict__.get(name)
-                            if candidate is None:
-                                continue
-                            if getattr(base, "_is_interface_", False):
-                                continue
-                            prop_obj = candidate
-                            break
-
-                    if not isinstance(prop_obj, property):
-                        if name not in missing:
-                            missing.append(name)
+                    impl = cls.__dict__.get(name, None)
+                    if impl is None:
+                        missing.append(name)
                         continue
+                    
+                    if isinstance(impl, property):
+                        continue  # ok
+                    
+                    # match static/class methods or normal funcs
+                    if inspect.isfunction(impl):
+                        raise TypeError(
+                            f"Signature mismatch for '{name}' in concrete '{cls.__name__}': expected property, got function."
+                        )
+                    if isinstance(impl, staticmethod):
+                        raise TypeError(
+                            f"Signature mismatch for '{name}' in concrete '{cls.__name__}': expected property, got staticmethod."
+                        )
+                    if isinstance(impl, classmethod):
+                        raise TypeError(
+                            f"Signature mismatch for '{name}' in concrete '{cls.__name__}': expected property, got classmethod."
+                        )
+
+                    # everything else treated as field
+                    raise TypeError(
+                        f"Signature mismatch for '{name}' in concrete '{cls.__name__}': expected property, got field."
+                    )
 
             if missing or signature_mismatches:
                 parts: list[str] = []
