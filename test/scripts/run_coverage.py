@@ -41,7 +41,8 @@ def main():
     cov.report(show_missing=True)
     cov.html_report(directory=str(PROJECT_ROOT / "coverage_html"))
 
-    print(f"\n✅ HTML coverage report generated at: {PROJECT_ROOT / 'coverage_html' / 'index.html'}")
+    print("\n✅ HTML coverage report generated at:")
+    print(f"{PROJECT_ROOT / 'coverage_html' / 'index.html'}")
 
     return 0 if result.wasSuccessful() else 1
 
