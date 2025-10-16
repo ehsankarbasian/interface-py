@@ -42,6 +42,23 @@ class MethodContractPassTestCase(TestCase):
         MyConcrete()
     
     
+    def test_with_broken_params(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got None."
+        
+        class BrokenCallable:
+            def __call__(self, *args, **kwargs):
+                pass
+        
+        BrokenCallable.__signature__ = object()
+
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                foo = BrokenCallable()
+                
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
     def test_bad_params_1(self):
         expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (self, par_1)."
         
