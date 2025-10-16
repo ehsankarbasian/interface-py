@@ -10,10 +10,11 @@ It ensures that concrete classes implement all required methods, properties, and
 - Define **interfaces** using the `@interface` decorator.
 - Enforce that concrete classes implement all interface methods, fields, and properties.
 - Detects and enforces rules for **empty**, **explicit**, and **invalid getters/setters**.
-- Support for **fields** with three declaration styles:
+- Support for **fields** with four declaration styles:
   1. With annotation only → `x: int`
   2. With annotation + `...` → `y: float = ...`
   3. Without annotation + `...` → `z = ...`
+  4. With direct type assignment → `DataModel = dict` or any other type/class
 - Ensures that **property getters** defined explicitly in interfaces always raise an error.
 - Allows defining properties in interfaces with empty bodies (`...`, `pass`, or docstring-only`).
 - Enforce **getter**, **setter**, and **deleter** implementation rules for properties.
@@ -44,6 +45,7 @@ class HumanInterface:
     name: str
     age: int = ...
     nickname = ...
+    DataModel = dict  # direct type assignment
     
     def speak(self): ...
     
@@ -105,6 +107,7 @@ class ExampleInterface:
     x: int              # only annotation
     y: float = ...      # annotation with ellipsis
     z = ...             # plain ellipsis
+    DataModel = dict    # direct type assignment
 
 
 # ✅ Correct implementation
@@ -113,6 +116,7 @@ class GoodImpl(ExampleInterface):
     x: int = 10
     y: float = 3.14
     z = "hello"
+    DataModel = dict
 
 
 # ❌ Incorrect implementation
@@ -121,6 +125,7 @@ class BadImpl(ExampleInterface):
     x: str = "oops"   # wrong type (expected int)
     # y missing → TypeError
     z = ...           # not allowed to keep ellipsis
+    DataModel = list   # wrong type assignment
 ```
 
 ---

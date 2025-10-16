@@ -31,6 +31,23 @@ class InterfaceCanDefineEmptyFieldTestCase(TestCase):
         class MyInterface:
             x: int = ...
 
+    
+    def test_empty_builtin_type_field(self):
+        
+        @interface
+        class MyInterface:
+            DataModel = dict
+    
+    
+    def test_empty_custom_class_field(self):
+        
+        class MyCustomSerializer:
+            pass
+        
+        @interface
+        class MyInterface:
+            DataModel = MyCustomSerializer
+
 
 if __name__ == "__main__":
     unittest.main()
