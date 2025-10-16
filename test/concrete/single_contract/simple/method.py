@@ -42,6 +42,17 @@ class MethodContractPassTestCase(TestCase):
         MyConcrete()
     
     
+    def test_builtin_function(self):
+        expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got (obj, /)."
+        
+        with self.assertRaises(TypeError) as context:
+            @concrete
+            class MyConcrete(self.MyInterface):
+                foo = len
+                
+        self.assertEqual(str(context.exception), expected_message)
+    
+    
     def test_with_broken_params(self):
         expected_message = "Signature mismatch for 'foo' in concrete 'MyConcrete': expected (self, par_1, par_2), got None."
         
