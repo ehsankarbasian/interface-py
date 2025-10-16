@@ -46,5 +46,6 @@ def main():
 
     return 0 if result.wasSuccessful() else 1
 
+
 if __name__ == "__main__":
     sys.exit(main())

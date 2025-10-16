@@ -240,15 +240,11 @@ class InterfaceMeta(type):
                     try:
                         impl_sig = inspect.signature(func) if func is not None else None
                     except (ValueError, TypeError):
+                        # fallback for unusual or C-level callables without valid signature
                         impl_sig = None
                         
                     if expected_sig is not None:
                         if name == "__init__":
-                            # enforce __init__ only if some interface explicitly declared it
-                            if not explicit_init_in_interfaces:
-                                # interface chain didn't declare __init__ explicitly -> don't enforce
-                                continue
-
                             # if the concrete inherited a generic init (e.g., object.__init__ with *args/**kwargs)
                             # treat it as missing (not a signature mismatch)
                             if impl_sig is not None:
@@ -260,10 +256,6 @@ class InterfaceMeta(type):
                                 if len(meaningful) <= 1:
                                     missing.append(name)
                                     continue
-                            else:
-                                # couldn't obtain signature -> consider mismatch
-                                signature_mismatches.append((name, expected_sig, impl_sig))
-                                continue
 
                             # finally compare signatures
                             if impl_sig is None or impl_sig.parameters.keys() != expected_sig.parameters.keys():
@@ -277,9 +269,6 @@ class InterfaceMeta(type):
                                 signature_mismatches.append(
                                     (name, expected_sig, impl_sig)
                                 )
-                    else:
-                        # expected_sig is None but impl_sig is None? if expected_sig not None we handled above
-                        pass
                             
                 elif kind == "field":
                     if not hasattr(cls, name):
