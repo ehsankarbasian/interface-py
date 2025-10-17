@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface_py import interface, concrete
 
 
-class ـNonInterfaceParent:
+class _NonInterfaceParent:
     pass
 
 
@@ -35,7 +35,7 @@ class TestConcreteDecorator(TestCase):
             ...
 
         @concrete
-        class MyConcrete(MyInterface, ـNonInterfaceParent):
+        class MyConcrete(MyInterface, _NonInterfaceParent):
             ...
 
         self.assertFalse(getattr(MyConcrete, "_is_interface_"))
@@ -69,11 +69,11 @@ class TestConcreteDecorator(TestCase):
             ...
 
         @concrete
-        class MyConcrete_1(MyInterface_1, ـNonInterfaceParent, MyInterface_2):
+        class MyConcrete_1(MyInterface_1, _NonInterfaceParent, MyInterface_2):
             ...
         
         @concrete
-        class MyConcrete_2(ـNonInterfaceParent, MyInterface_1, MyInterface_2):
+        class MyConcrete_2(_NonInterfaceParent, MyInterface_1, MyInterface_2):
             ...
 
         self.assertFalse(getattr(MyConcrete_1, "_is_interface_"))
@@ -86,7 +86,7 @@ class TestConcreteDecorator(TestCase):
         with self.assertRaises(TypeError) as context:
             
             @concrete
-            class BadConcrete(ـNonInterfaceParent):
+            class BadConcrete(_NonInterfaceParent):
                 ...
         
         self.assertEqual(str(context.exception), expected_message)

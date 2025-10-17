@@ -9,7 +9,7 @@ sys.path.append(path)
 from interface_py import interface
 
 
-class ـNonInterfaceParent:
+class _NonInterfaceParent:
     pass
 
 
@@ -99,12 +99,12 @@ class TestInterfaceDecorator(TestCase):
 
 
     def test_invalid_interface_inheritance(self):
-        expected_message = "In interface 'BadInterface', all parents must be interfaces. Found non-interface parent 'ـNonInterfaceParent'."
+        expected_message = "In interface 'BadInterface', all parents must be interfaces. Found non-interface parent '_NonInterfaceParent'."
         
         with self.assertRaises(TypeError) as context:
             
             @interface
-            class BadInterface(ـNonInterfaceParent):
+            class BadInterface(_NonInterfaceParent):
                 ...
         
         self.assertEqual(str(context.exception), expected_message)
