@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src import interface
+from src.interface_py import interface
 from test.interface.test_helpers import SourceLoaderTestCase
 
 
@@ -16,7 +16,7 @@ class InterfaceHasNoPropertyGetterTestCase(SourceLoaderTestCase):
     def test_no_empty_pass_property_getter(self):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         fake_source = '''
-            from src import interface
+            from src.interface_py import interface
 
             @interface
             class MyInterface:
@@ -40,7 +40,7 @@ class InterfaceHasNoPropertyGetterTestCase(SourceLoaderTestCase):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
         fake_source = '''
-            from src import interface
+            from src.interface_py import interface
         
             @interface
             class MyInterface:
@@ -64,7 +64,7 @@ class InterfaceHasNoPropertyGetterTestCase(SourceLoaderTestCase):
         expected_message = "In interface 'MyInterface', property 'foo' must not define a getter."
         
         fake_source = '''
-            from src import interface
+            from src.interface_py import interface
             
             @interface
             class MyInterface:

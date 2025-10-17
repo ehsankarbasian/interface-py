@@ -1,4 +1,4 @@
-from src import interface, concrete
+from interface_py import interface, concrete
 
 
 @interface
