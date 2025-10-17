@@ -19,7 +19,7 @@ spec.loader.exec_module(module_main)
 load_all_tests = module_main.load_all_tests
 
 def main():
-    test_root = PROJECT_ROOT / "test"
+    test_root = PROJECT_ROOT / "tests"
 
     cov = Coverage(source=[str(PROJECT_ROOT / "src")], omit=["*/test/*", "*/tests/*"])
     cov.start()

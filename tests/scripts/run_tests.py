@@ -48,7 +48,7 @@ if __name__ == "__main__":
     except NameError:
         project_root = Path.cwd().resolve().parent.parent
     
-    test_root = project_root / "test"
+    test_root = project_root / "tests"
 
     if len(sys.argv) > 1:
         arg_path = Path(sys.argv[1])
