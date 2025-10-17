@@ -143,5 +143,33 @@ class InterfaceCanDefineEmptyContractTestCase(SourceLoaderTestCase):
         self.load_interface_from_source(fake_source, "MyInterface")
 
 
+    def test_empty_pass_exec_method(self):
+        class_name = "MyInterface"
+
+        lines = [f"class {class_name}:"]
+        lines.append(f"    def my_method(self): pass")
+
+        src = "\n".join(lines)
+        global_vars = {}
+        local_vars = {}
+        exec(src, global_vars, local_vars)
+        cls = local_vars[class_name]
+        cls = interface(cls)
+    
+    
+    def test_empty_ellipsis_exec_method(self):
+        class_name = "MyInterface"
+
+        lines = [f"class {class_name}:"]
+        lines.append(f"    def my_method(self): ...")
+
+        src = "\n".join(lines)
+        global_vars = {}
+        local_vars = {}
+        exec(src, global_vars, local_vars)
+        cls = local_vars[class_name]
+        cls = interface(cls)
+
+
 if __name__ == "__main__":
     unittest.main()
