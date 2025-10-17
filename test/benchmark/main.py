@@ -34,6 +34,7 @@ if __name__ == "__main__":
     print("\n\n------ Large-class benchmarks (time + memory) ------\n")
 
     sizes = [
+        (10, 10, 20, 'Tiny'),
         (50, 50, 200, 'Small'),
         (200, 200, 200, 'Medium'),
         (800, 800, 200, 'Large'),

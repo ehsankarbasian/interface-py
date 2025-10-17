@@ -37,6 +37,16 @@ class Helper:
         if node is not None:
             return Helper._is_ast_body_empty(node)
     
+        code = getattr(func, "__code__", None)
+        if code is None:
+            return False
+        co_names = getattr(code, "co_names", ())
+        co_consts = getattr(code, "co_consts", ())
+        if not co_names and (co_consts == (None,) or co_consts == (None,)):
+            return True
+        
+        return False
+    
 
     @staticmethod
     def _get_function_ast_node(func: FunctionType):
