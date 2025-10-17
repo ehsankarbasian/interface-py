@@ -6,14 +6,14 @@ from coverage import Coverage
 import importlib.util
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SCRIPT_MAIN = PROJECT_ROOT / "test" / "scripts" / "main.py"
+SCRIPT_MAIN = PROJECT_ROOT / "tests" / "scripts" / "run_tests.py"
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-spec = importlib.util.spec_from_file_location("scripts.main", SCRIPT_MAIN)
+spec = importlib.util.spec_from_file_location("scripts.run_tests", SCRIPT_MAIN)
 module_main = importlib.util.module_from_spec(spec)
-sys.modules["scripts.main"] = module_main
+sys.modules["scripts.run_tests"] = module_main
 spec.loader.exec_module(module_main)
 
 load_all_tests = module_main.load_all_tests

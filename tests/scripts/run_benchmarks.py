@@ -5,10 +5,11 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from plot_tools import plot_group
-from class_generator import make_interface_class, make_concrete_class, make_abc_class, make_abc_impl
-from big_class_generator import make_big_interface, make_big_abc, make_big_concrete_from_interface, make_big_abc_impl
-from runner import run_with_and_without_gc
+
+from tests.performance.plot_tools import plot_group
+from tests.performance.class_generator import make_interface_class, make_concrete_class, make_abc_class, make_abc_impl
+from tests.performance.big_class_generator import make_big_interface, make_big_abc, make_big_concrete_from_interface, make_big_abc_impl
+from tests.performance.runner import run_with_and_without_gc
 
 
 # interactive mode on so figures can be shown non-blocking
