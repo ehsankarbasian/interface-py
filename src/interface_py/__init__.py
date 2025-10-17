@@ -1,1 +1,7 @@
-from .core_api import interface, concrete
+from ._internals.core_api import interface, concrete
+
+
+__all__ = [
+    "interface",
+    "concrete"
+]

@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.absolute())
 sys.path.append(path)
 
-from src.interface_py import interface
+from interface_py import interface
 
 
 class InterfaceHasNoConcreteFieldTestCase(TestCase):

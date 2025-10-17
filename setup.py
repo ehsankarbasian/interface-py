@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="interface-py",
-    version="1.3.8",
+    version="1.3.9",
     author="Ehsan Karbasian",
     author_email="ehsan.karbasian@gmail.com",
     description="A package to define interface in Python",

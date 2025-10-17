@@ -6,7 +6,7 @@ import sys
 path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.parent.absolute())
 sys.path.append(path)
 
-from src.interface_py import interface, concrete
+from interface_py import interface, concrete
 
 
 class PropertyGetterContractPassTestCase(TestCase):

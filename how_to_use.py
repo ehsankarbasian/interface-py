@@ -9,6 +9,7 @@ class Human:
 
 @interface
 class MilitaryHuman(Human):
+    # x = int
     # x: int
     # x = ...
     x: int = ...
