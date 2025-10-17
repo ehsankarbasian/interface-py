@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="interface-py",
-    version="1.4.0",
+    version="1.4.2",
     author="Ehsan Karbasian",
     author_email="ehsan.karbasian@gmail.com",
     description="A package to define interface in Python",
@@ -15,7 +15,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ehsankarbasian/interface-py",
     package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src", exclude=["test*", "tests*", "coverage_html*"]),
+    packages=setuptools.find_packages(
+        where="src",
+        include=["interface_py", "interface_py._internals"]
+    ),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

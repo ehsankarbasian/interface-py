@@ -1,4 +1,8 @@
-from ._internals.core_api import interface, concrete
+from ._internals import interface, concrete
+
+
+interface.__module__ = "interface_py"
+concrete.__module__ = "interface_py"
 
 
 __all__ = [
