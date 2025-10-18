@@ -61,13 +61,57 @@ class FieldContractAnnotationTestCase(FieldContractElipsisTestCase):
         self.MyInterface = _MyInterface
 
 
-class FieldContractElipsisAndAnnotationTestCase(FieldContractElipsisTestCase):
+class FieldContractAnnotationThreeDotsTestCase(FieldContractElipsisTestCase):
 
     def setUp(self):
         
         @interface
         class _MyInterface:
             x: int = ...
+
+        self.MyInterface = _MyInterface
+
+
+class FieldContractAnnotationEllipsisTestCase(FieldContractElipsisTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            x: int = Ellipsis
+
+        self.MyInterface = _MyInterface
+
+
+class FieldContractEllipsisTestCase(FieldContractElipsisTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            x = Ellipsis
+
+        self.MyInterface = _MyInterface
+
+
+class FieldContractTypeClassTestCase(FieldContractElipsisTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            x = int
+
+        self.MyInterface = _MyInterface
+
+
+class FieldContractAnnotationTypeClassTestCase(FieldContractElipsisTestCase):
+
+    def setUp(self):
+        
+        @interface
+        class _MyInterface:
+            x: int = int
 
         self.MyInterface = _MyInterface
 
