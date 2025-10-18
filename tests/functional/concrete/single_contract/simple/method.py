@@ -26,13 +26,6 @@ class MethodContractPassTestCase(TestCase):
         return super().tearDown()
     
     
-    def test_success(self):
-        @concrete
-        class MyConcrete(self.MyInterface):
-            def foo(self, par_1, par_2):
-                return f'{par_1} {par_2}'
-    
-    
     def test_instantiate_good_concrete(self):
         @concrete
         class MyConcrete(self.MyInterface):
@@ -146,14 +139,6 @@ class ConstructorContractPassTestCase(TestCase):
         return super().tearDown()
 
 
-    def test_success(self):
-        @concrete
-        class MyConcrete(self.MyInterface):
-            def __init__(self, a, b):
-                self.a = a
-                self.b = b
-
-    
     def test_instantiate_good_concrete(self):
         @concrete
         class MyConcrete(self.MyInterface):
@@ -226,13 +211,6 @@ class MagicMethodContractPassTestCase(TestCase):
     def tearDown(self):
         del self.MyInterface
         return super().tearDown()
-
-
-    def test_success(self):
-        @concrete
-        class MyConcrete(self.MyInterface):
-            def __add__(self, var):
-                return f'{var} foo'
 
     
     def test_instantiate_good_concrete(self):
