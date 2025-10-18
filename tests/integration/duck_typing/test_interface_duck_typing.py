@@ -13,7 +13,7 @@ class MethodDuckTypingTestCase(TestCase):
     
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             def quack(self): ...
         
@@ -99,7 +99,7 @@ class StaticMethodDuckTypingTestCase(TestCase):
     
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             
             @staticmethod
@@ -188,7 +188,7 @@ class ClassMethodDuckTypingTestCase(TestCase):
     
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             
             @classmethod
@@ -277,7 +277,7 @@ class FieldThreeDotsDuckTypingTestCase(TestCase):
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age = ...
         
@@ -353,7 +353,7 @@ class PropertyDuckTypingTestCase(TestCase):
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             
             @property
@@ -431,7 +431,7 @@ class FieldEllipsisDuckTypingTestCase(FieldThreeDotsDuckTypingTestCase):
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age = Ellipsis
         
@@ -442,7 +442,7 @@ class FieldAnnotationDuckTypingTestCase(FieldThreeDotsDuckTypingTestCase):
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age: int
         
@@ -453,7 +453,7 @@ class FieldAnnotationThreeDotsDuckTypingTestCase(FieldThreeDotsDuckTypingTestCas
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age: int = ...
         
@@ -464,7 +464,7 @@ class FieldAnnotationEllipsisDuckTypingTestCase(FieldThreeDotsDuckTypingTestCase
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age: int = Ellipsis
         
@@ -475,7 +475,7 @@ class FieldTypeClassDuckTypingTestCase(FieldThreeDotsDuckTypingTestCase):
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age = int
         
@@ -486,7 +486,7 @@ class FieldAnnotationTypeClassDuckTypingTestCase(FieldThreeDotsDuckTypingTestCas
 
     def setUp(self):
         
-        @interface
+        @interface(duck_typing=True)
         class _DuckInterface:
             age: int = int
         

@@ -2,10 +2,9 @@ import ast
 import inspect
 
 from .helper_functions import Helper
-from .mixins import DuckTypingMixin
 
 
-class InterfaceMeta(DuckTypingMixin, type):
+class InterfaceMeta(type):
     
     def __new__(mcls, name, bases, namespace):
         cls = super().__new__(mcls, name, bases, namespace)
@@ -41,7 +40,7 @@ class InterfaceMeta(DuckTypingMixin, type):
             # TODO (PERFORMANCE): use itertools.chain to lazy load the iterable
             all_attrs = list(vars(cls).items()) + [(attr, None) for attr in cls.__annotations__ if attr not in cls.__dict__]
             for attr, value in all_attrs:
-                if attr in ("__annotations__", "_is_interface_", "_interface_contracts_"):
+                if attr in ("__annotations__", "_is_interface_", "_interface_contracts_", "_duck_typing_enabled_"):
                     continue
                 if attr.startswith("__") and attr.endswith("__") and attr not in MAGIC_INCLUDE:
                     continue

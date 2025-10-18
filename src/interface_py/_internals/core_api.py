@@ -6,9 +6,9 @@ class _InterfaceBase(metaclass=_InterfaceMeta):
     pass
 
 
-def interface(cls):
+def interface(cls, *, duck_typing: bool = False):
     if _InterfaceBase not in cls.__mro__:
-        cls = type(cls.__name__, (_InterfaceBase,) + cls.__bases__, dict(cls.__dict__))
+        cls = type(cls.__name__, (_InterfaceBase, ) + cls.__bases__, dict(cls.__dict__))
 
     for base in cls.__bases__:
         if base is object or base is _InterfaceBase:
@@ -17,20 +17,22 @@ def interface(cls):
             raise TypeError(
                 f"In interface '{cls.__name__}', all parents must be interfaces. Found non-interface parent '{base.__name__}'."
             )
-    
+
     cls._is_interface_ = True
+    cls._duck_typing_enabled_ = duck_typing
     cls.__validate__()
     return cls
 
 
-def concrete(cls):
+def concrete(cls, *, duck_typing: bool = False):
     has_interface_parent = any(getattr(base, "_is_interface_", False) for base in cls.__bases__)
     
     if not has_interface_parent:
         raise TypeError(
             f"Concrete class '{cls.__name__}' must inherit from at least one interface."
         )
-    
+
     cls._is_interface_ = False
+    cls._duck_typing_enabled_ = duck_typing
     cls.__validate__()
     return cls
