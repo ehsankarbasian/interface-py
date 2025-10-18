@@ -2,9 +2,10 @@ import ast
 import inspect
 
 from .helper_functions import Helper
+from .mixins import DuckTypingMixin
 
 
-class InterfaceMeta(type):
+class InterfaceMeta(DuckTypingMixin, type):
     
     def __new__(mcls, name, bases, namespace):
         cls = super().__new__(mcls, name, bases, namespace)
@@ -23,15 +24,6 @@ class InterfaceMeta(type):
         if getattr(cls, "_is_interface_", False):
             raise TypeError(f"Cannot instantiate interface class '{cls.__name__}'")
         return super().__call__(*args, **kwargs)
-    
-    
-    def __subclasscheck__(cls, subclass):
-        
-        for name, attribute in cls.__dict__.items():
-            if callable(attribute) and not hasattr(subclass, name):
-                return False
-        
-        return True
     
 
     def __validate__(cls):
