@@ -5,6 +5,7 @@ from .helper_functions import Helper
 
 
 class InterfaceMeta(type):
+    
     def __new__(mcls, name, bases, namespace):
         cls = super().__new__(mcls, name, bases, namespace)
         cls._is_interface_ = getattr(cls, "_is_interface_", None)
@@ -17,10 +18,20 @@ class InterfaceMeta(type):
         
         return cls
 
+
     def __call__(cls, *args, **kwargs):
         if getattr(cls, "_is_interface_", False):
             raise TypeError(f"Cannot instantiate interface class '{cls.__name__}'")
         return super().__call__(*args, **kwargs)
+    
+    
+    def __subclasscheck__(cls, subclass):
+        
+        for name, attribute in cls.__dict__.items():
+            if callable(attribute) and not hasattr(subclass, name):
+                return False
+        
+        return True
     
 
     def __validate__(cls):
