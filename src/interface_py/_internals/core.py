@@ -265,7 +265,7 @@ class InterfaceMeta(type):
                             if impl_sig is None:
                                 signature_mismatches.append((name, expected_sig, impl_sig))
                                 continue
-                            if impl_sig.parameters.keys() != expected_sig.parameters.keys():
+                            if list(impl_sig.parameters.items()) != list(expected_sig.parameters.items()):
                                 signature_mismatches.append(
                                     (name, expected_sig, impl_sig)
                                 )
